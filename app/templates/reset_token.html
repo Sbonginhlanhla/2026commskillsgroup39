@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">Reset Your Password</h2>
+                    <p class="text-muted">Please enter your new strong password below.</p>
+                </div>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">New Password</label>
+                        <div class="password-container">
+                            {{ form.password(class="form-control", id="reset-pass") }}
+                            <i class="fa-solid fa-eye toggle-password" id="reset-icon" onclick="togglePassword('reset-pass', 'reset-icon')"></i>
+                        </div>
+                        {% if form.password.errors %}
+                            <small class="text-danger">{{ form.password.errors[0] }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Confirm New Password</label>
+                        <div class="password-container">
+                            {{ form.confirm_password(class="form-control", id="reset-confirm") }}
+                            <i class="fa-solid fa-eye toggle-password" id="confirm-icon" onclick="togglePassword('reset-confirm', 'confirm-icon')"></i>
+                        </div>
+                        {% if form.confirm_password.errors %}
+                            <small class="text-danger">{{ form.confirm_password.errors[0] }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success btn-lg shadow-sm") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

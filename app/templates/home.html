@@ -1,0 +1,396 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    /* Custom CSS to match the SkillSwap design */
+    :root {
+        --brand-green: #2a7a58;
+        --brand-green-light: #e9f2ee;
+        --text-dark: #1a2b22;
+    }
+    
+    .serif-heading {
+        font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .hero-section {
+        background-color: var(--brand-green);
+        border-radius: 1rem;
+        padding: 4rem 3rem;
+    }
+
+    .hero-heading {
+        font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .stat-card {
+        border-radius: 1rem;
+        border: 1px solid #eaeaea;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .stat-number {
+        color: var(--brand-green);
+        font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .dashboard-card {
+        border-radius: 1rem;
+        border: 1px solid #eaeaea;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .pill-badge {
+        background-color: #f4f5f7;
+        color: #555;
+        border-radius: 20px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .pill-badge:hover {
+        background-color: #e2e4e8;
+    }
+
+    .pill-badge.active-filter {
+        background-color: var(--brand-green);
+        color: white;
+    }
+
+    .status-dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    .bg-pending { background-color: #f5a623; }
+    .bg-progress { background-color: #4a90e2; }
+    .bg-completed { background-color: #2ecc71; }
+
+    .tag-pending { background-color: #fdf3e1; color: #d08c1b; }
+    .tag-progress { background-color: #e6f0fa; color: #3a7bc8; }
+    .tag-completed { background-color: #eafaf1; color: #27ae60; }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--brand-green-light);
+        color: var(--brand-green);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .exchange-box {
+        background-color: #f9f9f9;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .star-rating {
+        color: #f5a623;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="hero-section text-white mb-4 shadow-sm">
+    <div class="row">
+        <div class="col-md-9">
+            <h1 class="hero-heading mb-3">Share skills,<br>strengthen community.</h1>
+            <p class="lead mb-4" style="font-size: 1.1rem; opacity: 0.9;">Exchange your expertise with neighbours—no money needed. Plumbing for piano lessons, tutoring for home-cooked meals.</p>
+            
+            <div class="d-flex gap-3 align-items-center flex-wrap">
+                <div class="position-relative flex-grow-1" style="max-width: 400px;">
+                    <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill border-0" placeholder="&#128269; Search skills or people..." style="background-color: rgba(255,255,255,0.15); color: white;">
+                </div>
+                
+                {% if current_user.is_authenticated %}
+                <button type="button" data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-light btn-lg rounded-pill px-4 fw-bold shadow-sm" style="color: var(--text-dark);">+ Post a Request</button>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-light btn-lg rounded-pill px-4 fw-bold shadow-sm" style="color: var(--text-dark);">+ Post a Request</a>
+                {% endif %}
+                
+                {% if current_user.is_authenticated %}
+                    {% if not current_user.headline %}
+                        <a href="{{ url_for('create_profile') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold shadow-sm">Create Profile</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold shadow-sm">Join Now</a>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.is_authenticated and current_user.headline %}
+<div class="d-flex justify-content-end mb-4">
+    <a href="{{ url_for('create_profile') }}" class="btn btn-outline-success fw-bold rounded-pill shadow-sm">
+        <i class="fas fa-edit"></i> Edit Profile
+    </a>
+</div>
+{% endif %}
+
+<div class="row text-center mb-5 g-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm py-4">
+            <div class="stat-number mb-1">248</div>
+            <div class="text-muted small fw-bold text-uppercase">Active Members</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm py-4">
+            <div class="stat-number mb-1">156</div>
+            <div class="text-muted small fw-bold text-uppercase">Skills Available</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm py-4">
+            <div class="stat-number mb-1">892</div>
+            <div class="text-muted small fw-bold text-uppercase">Exchanges Done</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm py-4">
+            <div class="stat-number mb-1">4.7&#9733;</div>
+            <div class="text-muted small fw-bold text-uppercase">Avg. Rating</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+    <h2 class="serif-heading m-0">Available Skills</h2>
+</div>
+<p class="text-muted mb-4">Browse what your neighbours can offer</p>
+
+<div class="d-flex flex-wrap gap-2 mb-4" id="filterContainer">
+    <span class="pill-badge filter-pill active-filter">All</span>
+    <span class="pill-badge filter-pill">Home Repair</span>
+    <span class="pill-badge filter-pill">Education</span>
+    <span class="pill-badge filter-pill">Creative Arts</span>
+    <span class="pill-badge filter-pill">Technology</span>
+    <span class="pill-badge filter-pill">Wellness</span>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-5" id="skillsGrid">
+    {% for profile in profiles %}
+        {% if profile.skill_cat %}
+        <div class="col skill-card">
+            <div class="card dashboard-card shadow-sm p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="pill-badge m-0 skill-category-text">{{ profile.skill_cat }}</span>
+                    <span class="text-muted small">&#128205; Local</span>
+                </div>
+                <h4 class="serif-heading h5 mb-2">{{ profile.headline }}</h4>
+                <p class="text-muted small mb-4">{{ profile.bio | truncate(80) }}</p>
+                <div class="d-flex align-items-center mt-auto">
+                    <div class="user-avatar me-2">{{ profile.first_name[0] }}{{ profile.last_name[0] }}</div>
+                    <div>
+                        <div class="fw-bold searchable-name" style="font-size: 0.9rem;">{{ profile.first_name }} {{ profile.last_name }}</div>
+                        <div class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733; <span class="text-muted small">(New)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="col-12 text-center py-5" id="noSkillsMsg">
+            <p class="text-muted h5">No skills available yet. Be the first to share your skills!</p>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+    <h2 class="serif-heading m-0">Active Requests</h2>
+    <span class="text-success fw-bold d-flex align-items-center gap-1">
+        &#8599; {{ requests|length }} active
+    </span>
+</div>
+<p class="text-muted mb-4">Community members looking for help</p>
+
+<div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+    
+    {% for req in requests %}
+    <div class="col">
+        <div class="card dashboard-card shadow-sm p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="pill-badge tag-pending m-0"><span class="status-dot bg-pending"></span> Pending</span>
+                <span class="text-muted small">&#128205; Local</span>
+            </div>
+            
+            <h4 class="serif-heading h5 mb-3">{{ req.title }}</h4>
+            
+            <div class="exchange-box mb-4">
+                {{ req.category }} <span style="color: #f5a623; margin: 0 10px;">&#8644;</span> {{ req.offer }}
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+                <div class="d-flex align-items-center">
+                    <div class="user-avatar me-2" style="background-color: #f4f5f7; color: #333;">
+                        {{ req.author.first_name[0] }}{{ req.author.last_name[0] }}
+                    </div>
+                    <div class="text-dark" style="font-size: 0.95rem;">
+                        {{ req.author.first_name }} {{ req.author.last_name }}
+                    </div>
+                </div>
+                <div class="text-muted small">{{ req.date_posted.strftime('%Y-%m-%d') }}</div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted h5">No active requests right now. Be the first to ask for help!</p>
+        </div>
+    {% endfor %}
+
+</div>
+
+<div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 1rem;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="serif-heading modal-title" id="requestModalLabel">Post a New Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+        <div id="requestSuccessMessage" class="alert alert-success text-center shadow-sm" style="display: none; border-radius: 0.8rem; border: 2px solid var(--brand-green); background-color: var(--brand-green-light); color: var(--brand-green);">
+            <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+            <span class="fw-bold">Skill successfully requested!</span>
+        </div>
+
+        <form id="requestForm" onsubmit="event.preventDefault();">
+            <div class="mb-3">
+                <label class="form-label fw-bold">What do you need help with?</label>
+                <input type="text" class="form-control" name="req_title" placeholder="e.g., Need someone to fix my kitchen sink" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Category needed</label>
+                <select class="form-select" name="req_category" required>
+                    <option>Home Repair</option>
+                    <option>Education</option>
+                    <option>Creative Arts</option>
+                    <option>Technology</option>
+                    <option>Wellness</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">What skill can you offer in return?</label>
+                <input type="text" class="form-control" name="req_offer" placeholder="e.g., I can offer 2 hours of French tutoring" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Details</label>
+                <textarea class="form-control" rows="3" name="req_details" placeholder="Provide a bit more context..." required></textarea>
+            </div>
+            
+            <button type="submit" id="requestSubmitBtn" class="btn w-100 fw-bold" style="background-color: var(--brand-green); color: white; border-radius: 0.8rem; padding: 0.7rem;">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // --- 1. Search Functionality ---
+    const searchInput = document.getElementById('searchInput');
+    const filterPills = document.querySelectorAll('.filter-pill');
+    const skillCards = document.querySelectorAll('.skill-card');
+
+    searchInput.addEventListener('keyup', function() {
+        let searchTerm = searchInput.value.toLowerCase();
+        
+        skillCards.forEach(card => {
+            let cardText = card.textContent.toLowerCase();
+            if(cardText.includes(searchTerm)) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+
+    // --- 2. Category Filter Functionality ---
+    filterPills.forEach(pill => {
+        pill.addEventListener('click', function() {
+            filterPills.forEach(p => p.classList.remove('active-filter'));
+            this.classList.add('active-filter');
+            
+            let selectedCategory = this.textContent.trim();
+            
+            skillCards.forEach(card => {
+                let cardCategory = card.querySelector('.skill-category-text').textContent.trim();
+                
+                if(selectedCategory === 'All' || cardCategory === selectedCategory) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+
+    // --- 3. FIX: Intercept Post Request Form ---
+    const requestForm = document.getElementById('requestForm');
+    const requestSuccessMessage = document.getElementById('requestSuccessMessage');
+    const requestSubmitBtn = document.getElementById('requestSubmitBtn');
+
+    requestForm.addEventListener('submit', async function(event) {
+        // Stop the form from changing the page
+        event.preventDefault(); 
+
+        // Update button text to give user feedback
+        const originalText = requestSubmitBtn.textContent;
+        requestSubmitBtn.textContent = "Processing...";
+        requestSubmitBtn.disabled = true;
+
+        // Actually send the data to the Python backend invisibly!
+        const formData = new FormData(requestForm);
+        try {
+            await fetch('/post-request', { method: 'POST', body: formData });
+        } catch(err) {
+            console.error("Error saving:", err);
+        }
+
+        // Hide the form and show the success message
+        requestForm.style.display = 'none';
+        requestSuccessMessage.style.display = 'block';
+
+        // Wait 2.5 seconds, then reset everything and close the popup
+        setTimeout(() => {
+            // Find the modal and close it safely
+            const modalElement = document.getElementById('requestModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            // Tell the browser to instantly reload the page to show the new card!
+            window.location.reload(); 
+
+        }, 2500); // 2.5 seconds
+    });
+
+});
+</script>
+
+{% endblock content %}

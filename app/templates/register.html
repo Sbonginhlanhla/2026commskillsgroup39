@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* Custom classes to apply your specific green color */
+    .text-brand-green {
+        color: #2a7a58 !important;
+    }
+    .btn-brand-green {
+        background-color: #2a7a58;
+        border-color: #2a7a58;
+        color: white;
+    }
+    .btn-brand-green:hover {
+        background-color: #1f5a41; /* Slightly darker green for when you hover over the button */
+        border-color: #1f5a41;
+        color: white;
+    }
+    /* Small style for displaying form validation errors */
+    .form-error-msg {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-brand-green">Join the Community</h2>
+                    <p class="text-muted">Enter your details to start exchanging skills.</p>
+                </div>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">First Name</label>
+                            {{ form.first_name(class="form-control", placeholder="e.g. John") }}
+                            {% for error in form.first_name.errors %}
+                                <div class="form-error-msg">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Surname</label>
+                            {{ form.last_name(class="form-control", placeholder="e.g. Doe") }}
+                            {% for error in form.last_name.errors %}
+                                <div class="form-error-msg">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Username</label>
+                        {{ form.username(class="form-control", placeholder="Choose a unique username") }}
+                        {% for error in form.username.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Area Registration Code</label>
+                        {{ form.registration_code(class="form-control", placeholder="Required for access") }}
+                        {% for error in form.registration_code.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email Address</label>
+                        {{ form.email(class="form-control", placeholder="name@example.com") }}
+                        {% for error in form.email.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Password</label>
+                        <div class="password-container">
+                            {{ form.password(class="form-control", id="reg-pass") }}
+                            <i class="fa-solid fa-eye toggle-password" id="reg-icon" onclick="togglePassword('reg-pass', 'reg-icon')"></i>
+                        </div>
+                        {% for error in form.password.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Confirm Password</label>
+                        {{ form.confirm_password(class="form-control", placeholder="Repeat your password") }}
+                        {% for error in form.confirm_password.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-brand-green btn-lg shadow-sm") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
