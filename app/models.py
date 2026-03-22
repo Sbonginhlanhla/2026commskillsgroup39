@@ -25,10 +25,8 @@ class User(db.Model, UserMixin):
     phone = db.Column(db.String(20), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     
-    # REPUTATION: Tracks community support
+    # REPUTATION & SKILLS
     vouch_count = db.Column(db.Integer, default=0)
-    
-    # Skills expertise
     skill_cat = db.Column(db.String(50), nullable=True)
     skill_level = db.Column(db.String(20), nullable=True)
     help_text = db.Column(db.Text, nullable=True)
@@ -40,13 +38,20 @@ class User(db.Model, UserMixin):
     method_zoom = db.Column(db.Boolean, default=False)
     method_inperson = db.Column(db.Boolean, default=False)
     
-    # Professional and Social links
+    # Social links
     linkedin = db.Column(db.String(150), nullable=True)
     instagram = db.Column(db.String(150), nullable=True)
 
-    # RELATIONSHIP: Links to the Request table
-    # Allows you to access all of a user's requests via: current_user.requests
+    # RELATIONSHIPS
     requests = db.relationship('Request', backref='author', lazy=True)
+    ratings_received = db.relationship('Rating', foreign_keys='Rating.rated_user_id', backref='target', lazy=True)
+
+    @property
+    def average_rating(self):
+        # FIXED INDENTATION HERE
+        if not self.ratings_received:
+            return 0.0
+        return sum([r.score for r in self.ratings_received]) / len(self.ratings_received)
 
     def get_reset_token(self):
         s = Serializer(app.config['SECRET_KEY'])
@@ -71,9 +76,24 @@ class Request(db.Model):
     offer = db.Column(db.String(100), nullable=False)
     details = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    
-    # Foreign Key: links the request back to a specific User
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f"Request('{self.title}', '{self.category}', '{self.date_posted}')"
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    body = db.Column(db.String(500), nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"Message('{self.body}', '{self.timestamp}')"
+
+class Rating(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.Integer, nullable=False) # 1 to 5
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    rated_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

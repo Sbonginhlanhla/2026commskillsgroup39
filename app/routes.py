@@ -1,20 +1,19 @@
 import os
 import secrets
+from datetime import datetime
 from urllib.parse import urlparse
 from flask import render_template, url_for, flash, redirect, request, jsonify
 from app import app, db, bcrypt, mail
 from app.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
-from app.models import User, Request 
+from app.models import User, Request, Message, Rating
 from flask_login import login_user, current_user, logout_user, login_required
-from flask_mail import Message
+from flask_mail import Message as MailMessage
 
 # --- Context Processors ---
 
 @app.context_processor
 def inject_notifications():
-    """Makes notification_count available in layout.html automatically"""
     if current_user.is_authenticated:
-        # Count active requests created by the user
         count = Request.query.filter_by(user_id=current_user.id).count()
         return dict(notification_count=count)
     return dict(notification_count=0)
@@ -22,7 +21,6 @@ def inject_notifications():
 # --- Helper Functions ---
 
 def save_file(form_file, folder):
-    """Saves a file with a random hex name to avoid collisions"""
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_file.filename)
     filename = random_hex + f_ext
@@ -34,7 +32,7 @@ def save_file(form_file, folder):
 def send_verification_email(user):
     token = user.get_reset_token() 
     link = url_for('confirm_email', token=token, _external=True)
-    msg = Message('Verify your account on Skills Exchange', 
+    msg = MailMessage('Verify your account on Skills Exchange', 
                   sender=app.config['MAIL_USERNAME'], 
                   recipients=[user.email])
     msg.html = f'''
@@ -58,10 +56,8 @@ def send_verification_email(user):
 @app.route("/home")
 def home():
     if current_user.is_authenticated:
-        # Fetch everyone EXCEPT the current user so you don't see yourself in "Available Skills"
         all_users = User.query.filter(User.headline != None, User.id != current_user.id).all()
     else:
-        # If not logged in, show everyone who has a profile
         all_users = User.query.filter(User.headline != None).all()
         
     all_requests = Request.query.order_by(Request.date_posted.desc()).all()
@@ -130,7 +126,6 @@ def confirm_email(token):
 @login_required 
 def create_profile():
     if request.method == 'POST':
-        # Update User Data
         current_user.headline = request.form.get('headline')
         current_user.bio = request.form.get('bio')
         current_user.phone = request.form.get('phone')
@@ -145,7 +140,6 @@ def create_profile():
         current_user.method_zoom = request.form.get('method_zoom') == 'on'
         current_user.method_inperson = request.form.get('method_inperson') == 'on'
 
-        # File Uploads
         if 'profile_pic' in request.files:
             file = request.files['profile_pic']
             if file and file.filename != '':
@@ -167,30 +161,35 @@ def create_profile():
     full_name = f"{current_user.first_name} {current_user.last_name}"
     return render_template('create_profile.html', title='Edit Profile', user=current_user, full_name=full_name)
 
-# --- Activity & Help Requests ---
-
-@app.route("/my-activity")
-@login_required
-def my_activity():
-    # Only show the current user's skill card if they have a profile
-    user_skills = [current_user] if current_user.headline else []
-    # Fetch only requests created by this user
-    my_requests = Request.query.filter_by(user_id=current_user.id).order_by(Request.date_posted.desc()).all()
-    return render_template('my_activity.html', title='My Activity', skills=user_skills, requests=my_requests)
-
 @app.route('/post-request', methods=['POST'])
 @login_required
 def post_request():
+    # Fetching values from the form. 
+    # Ensure your HTML <textarea> uses name="req_details"
+    title = request.form.get('req_title')
+    category = request.form.get('req_category')
+    offer = request.form.get('req_offer')
+    details = request.form.get('req_details')
+
+    # Basic check to prevent empty details from crashing the DB
+    if not details:
+        return jsonify({"status": "error", "message": "Details field is required"}), 400
+
     new_request = Request(
-        title=request.form.get('req_title'),
-        category=request.form.get('req_category'),
-        offer=request.form.get('req_offer'),
-        details=request.form.get('req_details'),
+        title=title,
+        category=category,
+        offer=offer,
+        details=details,
         author=current_user
     )
-    db.session.add(new_request)
-    db.session.commit()
-    return jsonify({"status": "success"}), 200
+    
+    try:
+        db.session.add(new_request)
+        db.session.commit()
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/delete-request/<int:request_id>", methods=['POST'])
 @login_required
@@ -198,12 +197,12 @@ def delete_request(request_id):
     req = Request.query.get_or_404(request_id)
     if req.author.id != current_user.id:
         flash('You do not have permission to delete this request.', 'danger')
-        return redirect(url_for('my_activity'))
+        return redirect(url_for('dashboard'))
     
     db.session.delete(req)
     db.session.commit()
     flash('Your request has been removed.', 'success')
-    return redirect(url_for('my_activity'))
+    return redirect(url_for('dashboard'))
 
 # --- Password Reset ---
 
@@ -216,7 +215,7 @@ def reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             token = user.get_reset_token()
-            msg = Message('Password Reset Request', sender=app.config['MAIL_USERNAME'], recipients=[user.email])
+            msg = MailMessage('Password Reset Request', sender=app.config['MAIL_USERNAME'], recipients=[user.email])
             msg.body = f"To reset your password, visit: {url_for('reset_token', token=token, _external=True)}"
             mail.send(msg)
         flash('Instructions have been sent to your email.', 'info')
@@ -243,11 +242,8 @@ def reset_token(token):
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    # Get requests posted by the current user
-    user_requests = Request.query.filter_by(user_id=current_user.id).order_by(Request.date_posted.desc()).all()
-    
-    # Logic to count how many people have "Vouched" for them (optional expansion)
-    return render_template('dashboard.html', title='My Activities', requests=user_requests)
+    my_requests = Request.query.filter_by(user_id=current_user.id).order_by(Request.date_posted.desc()).all()
+    return render_template('dashboard.html', title='My Dashboard', requests=my_requests)
 
 @app.route("/vouch/<int:user_id>", methods=['POST'])
 @login_required
@@ -257,3 +253,41 @@ def vouch_user(user_id):
         user.vouch_count += 1
         db.session.commit()
     return jsonify({"new_count": user.vouch_count})
+
+# --- Chat & Rating Routes ---
+
+@app.route("/user/<int:user_id>", methods=['GET', 'POST'])
+@login_required
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    messages = Message.query.filter(
+        ((Message.sender_id == current_user.id) & (Message.recipient_id == user.id)) |
+        ((Message.sender_id == user.id) & (Message.recipient_id == current_user.id))
+    ).order_by(Message.timestamp.asc()).all()
+
+    return render_template('user_profile.html', user=user, messages=messages)
+
+@app.route("/send_message/<int:recipient_id>", methods=['POST'])
+@login_required
+def send_message(recipient_id):
+    body = request.form.get('body')
+    if body:
+        msg = Message(sender_id=current_user.id, recipient_id=recipient_id, body=body)
+        db.session.add(msg)
+        db.session.commit()
+    return redirect(url_for('user_profile', user_id=recipient_id))
+
+@app.route("/rate_user/<int:user_id>", methods=['POST'])
+@login_required
+def rate_user(user_id):
+    score = request.form.get('rating')
+    if score:
+        existing = Rating.query.filter_by(author_id=current_user.id, rated_user_id=user_id).first()
+        if existing:
+            existing.score = int(score)
+        else:
+            new_rating = Rating(score=int(score), author_id=current_user.id, rated_user_id=user_id)
+            db.session.add(new_rating)
+        db.session.commit()
+        flash('Rating submitted!', 'success')
+    return redirect(url_for('user_profile', user_id=user_id))

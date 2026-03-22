@@ -1,39 +1,96 @@
 {% extends "layout.html" %}
 {% block content %}
+<style>
+    /* Consistent Brand Colors */
+    .text-brand-green { color: #2a7a58 !important; }
+    .btn-brand-green { 
+        background-color: #2a7a58; 
+        border-color: #2a7a58; 
+        color: white; 
+        transition: all 0.3s ease;
+    }
+    .btn-brand-green:hover { background-color: #1f5a41; color: white; }
+
+    /* Password Toggle Styling */
+    .password-container { 
+        position: relative; 
+        display: flex;
+        align-items: center;
+    }
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 10;
+        font-size: 1.1rem;
+    }
+    .form-control-password { padding-right: 40px !important; }
+</style>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-5">
-            <div class="card shadow-lg p-4">
+            <div class="card shadow-lg border-0 p-4" style="border-radius: 1.5rem;">
                 <div class="text-center mb-4">
-                    <h2 class="fw-bold text-success">Welcome Back</h2>
+                    <h2 class="fw-bold text-brand-green">Welcome Back</h2>
                     <p class="text-muted">Please enter your login details.</p>
                 </div>
+
                 <form method="POST">
                     {{ form.hidden_tag() }}
+                    
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Email</label>
-                        {{ form.email(class="form-control") }}
+                        {{ form.email(class="form-control", placeholder="name@example.com") }}
                     </div>
+
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Password</label>
                         <div class="password-container">
-                            {{ form.password(class="form-control", id="login-pass") }}
+                            {{ form.password(class="form-control form-control-password", id="login-pass") }}
                             <i class="fa-solid fa-eye toggle-password" id="login-icon" onclick="togglePassword('login-pass', 'login-icon')"></i>
                         </div>
                     </div>
+
                     <div class="d-flex justify-content-between mb-4">
                         <div class="form-check">
-                            {{ form.remember(class="form-check-input") }}
-                            <label class="form-check-label">Remember me</label>
+                            {{ form.remember(class="form-check-input", id="rememberMe") }}
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
                         </div>
-                        <a href="{{ url_for('reset_request') }}" class="text-decoration-none small">Forgot Password?</a>
+                        <a href="{{ url_for('reset_request') }}" class="text-decoration-none small text-brand-green">Forgot Password?</a>
                     </div>
+
                     <div class="d-grid">
-                        {{ form.submit(class="btn btn-success btn-lg shadow-sm") }}
+                        {{ form.submit(class="btn btn-brand-green btn-lg shadow-sm") }}
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Don't have an account? 
+                            <a href="{{ url_for('register') }}" class="text-brand-green fw-bold">Sign up here</a>
+                        </p>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Toggle Password Visibility Logic
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    }
+</script>
 {% endblock %}

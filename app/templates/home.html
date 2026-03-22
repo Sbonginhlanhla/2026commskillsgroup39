@@ -250,6 +250,8 @@
                 </div>
                 
                 <h4 class="serif-heading h5 mb-3">{{ req.title }}</h4>
+                <p class="text-muted small mb-3">{{ (req.details or "No further details.") | truncate(150) }}</p>
+
                 <div class="exchange-box mb-4">
                     <span class="fw-bold">{{ req.category }}</span> 
                     <span style="color: #f5a623; margin: 0 8px;">↔</span> 
@@ -284,12 +286,20 @@
             <div class="mb-3">
                 <label class="form-label fw-bold">Category</label>
                 <select class="form-select" name="req_category">
-                    <option>Home Repair</option><option>Education</option><option>Technology</option><option>Wellness</option><option>Creative Arts</option>
+                    <option>Home Repair</option>
+                    <option>Education</option>
+                    <option>Technology</option>
+                    <option>Wellness</option>
+                    <option>Creative Arts</option>
                 </select>
             </div>
             <div class="mb-3">
                 <label class="form-label fw-bold">What will you offer in return?</label>
                 <input type="text" class="form-control" name="req_offer" placeholder="e.g., 1 hour of Yoga lesson" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Tell us more details</label>
+                <textarea class="form-control" name="req_details" rows="3" placeholder="Explain what you need so others can help..." required></textarea>
             </div>
             <button type="submit" id="requestSubmitBtn" class="btn w-100 fw-bold mt-3" style="background-color: var(--brand-green); color: white; border-radius: 0.8rem; padding: 0.8rem;">Submit Request</button>
         </form>
@@ -374,11 +384,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (response.ok) {
                     window.location.reload();
                 } else {
-                    throw new Error("Failed to post");
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Failed to post");
                 }
             } catch(err) {
                 btn.disabled = false;
                 btn.textContent = "Error! Try Again";
+                console.error("Submission error:", err);
             }
         });
     }

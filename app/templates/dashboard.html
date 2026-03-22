@@ -1,48 +1,72 @@
 {% extends "layout.html" %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4">
             <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 1.5rem; background-color: var(--brand-green-light);">
                 <div class="text-center">
-                    <div class="user-avatar-initials mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                    <div class="user-avatar-initials mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; background-color: white; color: var(--brand-green); display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
                         {{ current_user.first_name[0] }}
                     </div>
                     <h3 class="serif-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
-                    <p class="text-muted">{{ current_user.headline or 'No headline set' }}</p>
-                    <div class="badge bg-white text-success px-3 py-2 rounded-pill shadow-sm">
+                    <p class="text-muted">{{ current_user.headline or 'No headline set yet' }}</p>
+                    
+                    <div class="badge bg-white text-success px-3 py-2 rounded-pill shadow-sm mb-3">
                         <i class="fas fa-heart me-1"></i> {{ current_user.vouch_count }} Vouches
                     </div>
                 </div>
                 <hr>
-                <a href="{{ url_for('create_profile') }}" class="btn btn-outline-success w-100 rounded-pill fw-bold">Edit Profile</a>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('create_profile') }}" class="btn btn-outline-success rounded-pill fw-bold">Edit Profile</a>
+                    <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-success rounded-pill fw-bold">+ New Request</button>
+                </div>
             </div>
         </div>
 
         <div class="col-md-8">
-            <h2 class="serif-heading mb-4">My Requests</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="serif-heading m-0">My Active Requests</h2>
+                <span class="badge rounded-pill bg-dark">{{ requests|length }} Total</span>
+            </div>
+
             {% if requests %}
                 {% for req in requests %}
                 <div class="card shadow-sm border-0 mb-3 p-3" style="border-radius: 1rem;">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1 fw-bold">{{ req.title }}</h5>
-                            <span class="badge bg-light text-dark rounded-pill">{{ req.category }}</span>
+                        <div style="flex-grow: 1;">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h5 class="mb-0 fw-bold">{{ req.title }}</h5>
+                                <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">{{ req.category }}</span>
+                            </div>
+                            <p class="text-muted small mb-0">Offering: <span class="text-dark fw-bold">{{ req.offer }}</span></p>
                         </div>
-                        <div class="text-end">
-                            <small class="text-muted d-block mb-2">{{ req.date_posted.strftime('%d %b') }}</small>
-                            <button class="btn btn-sm btn-outline-danger rounded-pill">Delete</button>
+                        
+                        <div class="text-end ms-3">
+                            <small class="text-muted d-block mb-2">{{ req.date_posted.strftime('%d %b %Y') }}</small>
+                            <form action="{{ url_for('delete_request', request_id=req.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this request?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="text-center py-5 bg-light rounded-4">
-                    <p class="text-muted">You haven't posted any requests yet.</p>
-                    <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-success rounded-pill px-4">+ Create One Now</button>
+                <div class="text-center py-5 bg-white border rounded-4 shadow-sm">
+                    <div class="mb-3">
+                        <i class="fas fa-clipboard-list fa-3x text-light"></i>
+                    </div>
+                    <h5 class="text-dark">No requests found</h5>
+                    <p class="text-muted">Need help with something? Post your first request to the community!</p>
+                    <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">+ Post a Request</button>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+{% include "_request_modal.html" ignore missing %}
+
 {% endblock content %}

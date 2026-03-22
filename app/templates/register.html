@@ -1,52 +1,67 @@
 {% extends "layout.html" %}
 {% block content %}
 <style>
-    /* Brand Colors */
+    /* Brand Colors & Transitions */
     .text-brand-green { color: #2a7a58 !important; }
-    .btn-brand-green { background-color: #2a7a58; border-color: #2a7a58; color: white; }
+    .btn-brand-green { 
+        background-color: #2a7a58; 
+        border-color: #2a7a58; 
+        color: white; 
+        transition: all 0.3s ease;
+    }
     .btn-brand-green:hover { background-color: #1f5a41; color: white; }
     
-    /* Error Styling */
+    /* Styling for the disabled state */
+    .btn-brand-green:disabled {
+        background-color: #a5c7b9;
+        border-color: #a5c7b9;
+        color: #ffffff;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
     .form-error-msg { color: #dc3545; font-size: 0.875em; margin-top: 0.25rem; }
     
-    /* Terms & Conditions Styling */
-    .terms-text { font-size: 0.9rem; color: #4b4b4b; }
+    /* POPIA & Terms Box */
+    .popia-container {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.8rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .popia-text { font-size: 0.85rem; color: #495057; line-height: 1.4; }
     .terms-link { color: #2a7a58; text-decoration: underline; cursor: pointer; }
 
-    /* Centered Password Toggle Eye Icon */
+    /* Password Toggle Styling */
     .password-wrapper { 
         position: relative; 
         display: flex;
         align-items: center;
     }
-    
     .toggle-password {
         position: absolute;
         right: 12px;
         top: 50%;
-        transform: translateY(-50%); /* This centers it perfectly vertically */
+        transform: translateY(-50%);
         cursor: pointer;
         color: #6c757d;
         z-index: 10;
         font-size: 1.1rem;
     }
-    
-    /* Prevents long passwords from overlapping the icon */
-    .password-input-field {
-        padding-right: 40px !important;
-    }
+    .password-input-field { padding-right: 40px !important; }
 </style>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-7">
-            <div class="card shadow-lg p-4">
+            <div class="card shadow-lg border-0 p-4" style="border-radius: 1.5rem;">
                 <div class="text-center mb-4">
                     <h2 class="fw-bold text-brand-green">Join the Community</h2>
                     <p class="text-muted">Enter your details to start exchanging skills.</p>
                 </div>
                 
-                <form method="POST">
+                <form method="POST" id="registrationForm">
                     {{ form.hidden_tag() }}
                     
                     <div class="row g-3">
@@ -68,7 +83,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Username</label>
-                        {{ form.username(class="form-control") }}
+                        {{ form.username(class="form-control", placeholder="Choose a unique username") }}
                         {% for error in form.username.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
@@ -76,7 +91,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Email Address</label>
-                        {{ form.email(class="form-control") }}
+                        {{ form.email(class="form-control", placeholder="name@example.com") }}
                         {% for error in form.email.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
@@ -88,7 +103,6 @@
                         {% for error in form.registration_code.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
-                        <small class="text-muted">Hint: Your Comm Skill Exchange Code</small>
                     </div>
 
                     <div class="mb-3">
@@ -104,24 +118,31 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Confirm Password</label>
-                        {{ form.confirm_password(class="form-control") }}
+                        {{ form.confirm_password(class="form-control", placeholder="Repeat your password") }}
                         {% for error in form.confirm_password.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
                     </div>
 
-                    <div class="form-check mb-4">
-                        {{ form.agree_terms(class="form-check-input", id="termsCheck") }}
-                        <label class="form-check-label terms-text" for="termsCheck">
-                            I agree to the <span class="terms-link" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</span> and the processing of my data.
-                        </label>
-                        {% for error in form.agree_terms.errors %}
-                            <div class="form-error-msg">{{ error }}</div>
-                        {% endfor %}
+                    <div class="popia-container">
+                        <h6 class="fw-bold text-dark mb-2"><i class="fas fa-user-shield me-2"></i>POPIA Consent</h6>
+                        <div class="popia-text mb-3">
+                            By registering, you acknowledge that <strong>2026commskills</strong> will process your personal data (Name, Email, and Skills) to facilitate community connections under the Protection of Personal Information Act.
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="popiaCheck">
+                            <label class="form-check-label fw-bold" for="popiaCheck" style="font-size: 0.9rem;">
+                                I agree to the processing of my personal information.
+                            </label>
+                        </div>
                     </div>
 
                     <div class="d-grid">
-                        {{ form.submit(class="btn btn-brand-green btn-lg shadow-sm") }}
+                        {{ form.submit(class="btn btn-brand-green btn-lg shadow-sm", id="submitBtn", disabled=True) }}
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}" class="text-brand-green fw-bold">Login here</a></small>
                     </div>
                 </form>
             </div>
@@ -129,29 +150,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Terms and Conditions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <h6>1. Community Conduct</h6>
-                <p>By joining Skills Exchange, you agree to treat all members with respect. No harassment or discrimination will be tolerated.</p>
-                <h6>2. POPIA & Privacy</h6>
-                <p>We value your privacy. Your data is protected according to South African privacy laws.</p>
-                <h6>3. Liability</h6>
-                <p>Users engage in exchanges at their own risk.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-brand-green" data-bs-dismiss="modal">I Understand</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
+    // Toggle Password Visibility Logic
     function togglePassword(inputId, iconId) {
         const input = document.getElementById(inputId);
         const icon = document.getElementById(iconId);
@@ -163,5 +163,17 @@
             icon.classList.replace("fa-eye-slash", "fa-eye");
         }
     }
+
+    // POPIA Checkbox logic to enable Submit button
+    const popiaCheck = document.getElementById('popiaCheck');
+    const submitBtn = document.getElementById('submitBtn');
+
+    popiaCheck.addEventListener('change', function() {
+        submitBtn.disabled = !this.checked;
+    });
+
+    window.onload = function() {
+        submitBtn.disabled = !popiaCheck.checked;
+    };
 </script>
 {% endblock content %}
