@@ -59,11 +59,10 @@
         border: 3px solid var(--brand-green-light);
     }
 
-    /* --- NEW: Button styles and Hover effect --- */
     .btn-save {
         background-color: var(--text-dark);
         color: white;
-        transition: all 0.3s ease; /* Makes the color change smooth */
+        transition: all 0.3s ease;
     }
 
     .btn-save:hover {
@@ -71,9 +70,8 @@
         color: white;
     }
 
-    /* --- NEW: Success Message style --- */
     .top-success-alert {
-        display: none; /* Hidden by default */
+        display: none;
         background-color: var(--brand-green-light);
         color: var(--brand-green);
         border: 2px solid var(--brand-green);
@@ -102,7 +100,7 @@
             <h3 class="section-title">1. Personal Identity</h3>
             <div class="row align-items-center mb-4">
                 <div class="col-md-3 text-center">
-                    <img src="https://via.placeholder.com/100" id="profilePicPreview" class="profile-pic-preview mb-2" alt="Preview">
+                    <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) if user.profile_pic else 'https://via.placeholder.com/100' }}" id="profilePicPreview" class="profile-pic-preview mb-2" alt="Preview">
                     <label class="btn btn-sm btn-outline-secondary">
                         Upload Photo <input type="file" id="profilePicInput" hidden name="profile_pic" accept="image/*">
                     </label>
@@ -117,18 +115,11 @@
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label class="form-label">Full Name (Locked)</label>
-                    <input type="text" class="form-control locked-input" name="name" value="{{ full_name }}" readonly>
+                    <input type="text" class="form-control locked-input" value="{{ full_name }}" readonly>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Phone Number</label>
                     <input type="tel" class="form-control" name="phone" value="{{ user.phone or '' }}" placeholder="e.g. +27 82 123 4567">
-                </div>
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <label class="form-label">Registration Area (Locked)</label>
-                    <input type="text" class="form-control locked-input" value="2026commskills" readonly>
                 </div>
             </div>
 
@@ -142,43 +133,62 @@
                 <div class="col-md-6">
                     <label class="form-label">Skill Category</label>
                     <select class="form-select" name="skill_cat">
-                        <option selected>Choose...</option>
-                        <option>Technology</option>
-                        <option>Creative Arts</option>
-                        <option>Home Repair</option>
-                        <option>Education</option>
-                        <option>Wellness</option>
+                        <option value="" {% if not user.skill_cat %}selected{% endif %}>Choose...</option>
+                        {% for cat in ['Technology', 'Creative Arts', 'Home Repair', 'Education', 'Wellness'] %}
+                        <option value="{{ cat }}" {% if user.skill_cat == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Expertise Level</label>
                     <select class="form-select" name="level">
-    <option value="beginner" {% if user.skill_level == 'beginner' %}selected{% endif %}>Beginner</option>
-    <option value="intermediate" {% if user.skill_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
-    <option value="expert" {% if user.skill_level == 'expert' %}selected{% endif %}>Expert</option>
-</select>
+                        <option value="beginner" {% if user.skill_level == 'beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="intermediate" {% if user.skill_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="expert" {% if user.skill_level == 'expert' %}selected{% endif %}>Expert</option>
+                    </select>
                 </div>
             </div>
 
             <div class="mb-4">
                 <label class="form-label">How can you help others with this skill?</label>
-                <textarea class="form-control" rows="2" placeholder="e.g. I can help you build your first website from scratch..."></textarea>
+                <textarea class="form-control" rows="2" name="help_text" placeholder="e.g. I can help you build your first website...">{{ user.help_text or '' }}</textarea>
             </div>
 
             <div class="mb-4">
                 <label class="form-label">Skills you want to learn</label>
-                <input type="text" class="form-control" placeholder="e.g. French, Guitar, Woodworking">
+                <input type="text" class="form-control" name="skills_learn" value="{{ user.skills_learn or '' }}" placeholder="e.g. French, Guitar, Woodworking">
             </div>
+
+            <h3 class="section-title">3. Accreditation (Optional)</h3>
+<div class="mb-4">
+    <label class="form-label">Proof of Qualification</label>
+    <div class="p-3 border rounded-3 bg-light">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-white p-2 rounded border">
+                <i class="fa-solid fa-file-certificate fa-2x text-brand-green"></i>
+            </div>
+            <div class="flex-grow-1">
+                <input type="file" class="form-control" name="certificate" accept=".pdf,.jpg,.jpeg,.png">
+                <div class="form-text">Upload a certificate or proof (PDF, JPG, PNG). This helps verify your expertise.</div>
+            </div>
+        </div>
+        {% if user.certificate_file %}
+            <div class="mt-2 small text-brand-green">
+                <i class="fa-solid fa-circle-check"></i> Current file: {{ user.certificate_file }}
+            </div>
+        {% endif %}
+    </div>
+</div>
 
             <h3 class="section-title">3. Logistics & Availability</h3>
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label class="form-label">Time Commitment</label>
-                    <input type="text" class="form-control" placeholder="e.g. 2 hours/week">
+                    <input type="text" class="form-control" name="time_commit" value="{{ user.time_commit or '' }}" placeholder="e.g. 2 hours/week">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Languages Spoken</label>
-                    <input type="text" class="form-control" placeholder="e.g. English, Zulu, Afrikaans">
+                    <input type="text" class="form-control" name="languages" value="{{ user.languages or '' }}" placeholder="e.g. English, Zulu, Afrikaans">
                 </div>
             </div>
             
@@ -186,38 +196,37 @@
                 <label class="form-label">Preferred Method</label>
                 <div class="d-flex gap-3 mt-1">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="zoom" name="method_zoom">
+                        <input class="form-check-input" type="checkbox" id="zoom" name="method_zoom" {% if user.method_zoom %}checked{% endif %}>
                         <label class="form-check-label" for="zoom">Zoom/Meet/Teams</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="inperson" name="method_inperson">
+                        <input class="form-check-input" type="checkbox" id="inperson" name="method_inperson" {% if user.method_inperson %}checked{% endif %}>
                         <label class="form-check-label" for="inperson">In-Person</label>
                     </div>
                 </div>
             </div>
 
-            <h3 class="section-title">4. Social Links & Verification</h3>
+            <h3 class="section-title">4. Social Links</h3>
             <div class="row mb-4">
                 <div class="col-md-6 mb-2">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fab fa-linkedin"></i></span>
-                        <input type="text" class="form-control" name="linkedin" placeholder="LinkedIn URL">
+                        <input type="text" class="form-control" name="linkedin" value="{{ user.linkedin or '' }}" placeholder="LinkedIn URL">
                     </div>
                 </div>
                 <div class="col-md-6 mb-2">
                     <div class="input-group">
                         <span class="input-group-text"><i class="fab fa-instagram"></i></span>
-                        <input type="text" class="form-control" name="instagram" placeholder="Instagram URL">
+                        <input type="text" class="form-control" name="instagram" value="{{ user.instagram or '' }}" placeholder="Instagram URL">
                     </div>
                 </div>
             </div>
 
             <div class="d-flex justify-content-between align-items-center pt-4">
                 <a href="{{ url_for('home') }}" class="text-muted text-decoration-none">Cancel</a>
-                
                 <div class="d-flex align-items-center gap-3">
                     <span id="saveStatus" class="text-muted small"></span>
-                    <button type="submit" id="submitButton" class="btn btn-save shadow-sm">Complete My Profile</button>
+                    <button type="submit" id="submitButton" class="btn btn-save shadow-sm px-4 fw-bold">Save & Complete Profile</button>
                 </div>
             </div>
         </form>
@@ -225,18 +234,15 @@
 </div>
 
 <script>
-    // --- 1. Image Preview Code ---
+    // 1. Image Preview
     const fileInput = document.getElementById('profilePicInput');
     const imagePreview = document.getElementById('profilePicPreview');
-
     fileInput.addEventListener('change', function(event) {
         const file = event.target.files[0];
-        if (file) {
-            imagePreview.src = URL.createObjectURL(file);
-        }
+        if (file) { imagePreview.src = URL.createObjectURL(file); }
     });
 
-    // --- 2. Real-Time Auto-Save Code ---
+    // 2. Debounced Auto-Save
     const form = document.getElementById('profileForm');
     const saveStatus = document.getElementById('saveStatus');
 
@@ -250,7 +256,6 @@
 
     async function autoSaveProfile() {
         saveStatus.textContent = "Saving...";
-        saveStatus.style.color = "#6c757d";
         const formData = new FormData(form);
         try {
             const response = await fetch('/save-profile', { 
@@ -259,47 +264,32 @@
             if (response.ok) {
                 saveStatus.textContent = "Saved";
                 saveStatus.style.color = "var(--brand-green)";
-            } else {
-                saveStatus.textContent = "Error saving";
-                saveStatus.style.color = "red";
             }
-        } catch (error) {
-            saveStatus.textContent = "Network error";
-            saveStatus.style.color = "red";
-        }
+        } catch (error) { console.error("Auto-save failed", error); }
     }
 
     const debouncedSave = debounce(autoSaveProfile, 1000);
     form.addEventListener('input', debouncedSave);
     form.addEventListener('change', debouncedSave);
 
-    // --- NEW: 3. Final Submission Animation and Redirect ---
+    // 3. Final Submit Logic
     form.addEventListener('submit', async function(event) {
-        // Stop the form from changing the page immediately
         event.preventDefault();
-
-        // Give visual feedback on the button
         const submitBtn = document.getElementById('submitButton');
         submitBtn.textContent = "Processing...";
         submitBtn.disabled = true;
 
-        // Perform one final save to ensure everything is captured
         const formData = new FormData(form);
-        await fetch("{{ url_for('create_profile') }}", { 
-            method: 'POST', body: formData
-        });
-
-        // Show the success message at the top
-        const topAlert = document.getElementById('topSuccessMessage');
-        topAlert.style.display = 'block';
-
-        // Scroll the page to the top so the user sees the message
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        // Wait for 2.5 seconds (2500 milliseconds), then redirect to the home page
-        setTimeout(() => {
-            window.location.href = "{{ url_for('home') }}";
-        }, 2500);
+        try {
+            await fetch("{{ url_for('create_profile') }}", { method: 'POST', body: formData });
+            const topAlert = document.getElementById('topSuccessMessage');
+            topAlert.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { window.location.href = "{{ url_for('home') }}"; }, 2000);
+        } catch (e) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Save & Complete Profile";
+        }
     });
 </script>
 {% endblock content %}

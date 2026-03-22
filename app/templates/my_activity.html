@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-2">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none text-brand-green">Home</a></li>
+            <li class="breadcrumb-item active">My Activity</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h1 class="serif-heading mb-0">Dashboard</h1>
+        <span class="badge bg-brand-green px-3 py-2 rounded-pill">Active Member</span>
+    </div>
+    
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-4">
+            <i class="fa-solid fa-star text-warning me-2 fs-4"></i>
+            <h3 class="serif-heading h4 mb-0">My Published Skill</h3>
+        </div>
+        
+        <div class="row">
+            {% for skill in skills %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm border-0 h-100 overflow-hidden">
+                    <div class="bg-brand-green py-2 px-3">
+                        <small class="text-white fw-bold text-uppercase" style="letter-spacing: 1px;">{{ skill.skill_cat }}</small>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ skill.headline }}</h5>
+                        <p class="card-text text-muted small">{{ skill.bio[:100] }}...</p>
+                        <hr class="text-muted opacity-25">
+                        <div class="d-grid">
+                            <a href="{{ url_for('create_profile') }}" class="btn btn-sm btn-outline-brand-green rounded-pill">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Update Skill Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-5 bg-white rounded-4 border border-dashed">
+                    <i class="fa-solid fa-address-card fa-3x text-light mb-3"></i>
+                    <p class="text-muted">You haven't completed your skill profile yet.</p>
+                    <a href="{{ url_for('create_profile') }}" class="btn btn-brand-green rounded-pill px-4">Create Profile</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr class="my-5 opacity-25">
+
+    <div>
+        <div class="d-flex align-items-center mb-4">
+            <i class="fa-solid fa-handshake-angle text-info me-2 fs-4"></i>
+            <h3 class="serif-heading h4 mb-0">Help Requests <small class="text-muted">({{ requests|length }})</small></h3>
+        </div>
+
+        <div class="row g-4">
+            {% for req in requests %}
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 position-relative">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">{{ req.title }}</h5>
+                                <span class="badge bg-light text-dark border rounded-pill small">{{ req.category }}</span>
+                            </div>
+                            <span class="badge bg-warning text-dark badge-notify rounded-pill">Pending</span>
+                        </div>
+                        
+                        <div class="bg-light p-3 rounded-3 mb-3">
+                            <p class="small mb-1"><strong>Offering in exchange:</strong></p>
+                            <p class="text-brand-green mb-0 small"><i class="fa-solid fa-gift me-1"></i> {{ req.offer }}</p>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button class="btn btn-sm btn-light border rounded-pill px-3">
+                                <i class="fa-solid fa-check me-1 text-success"></i> Done
+                            </button>
+                            
+                            <form action="{{ url_for('delete_request', request_id=req.id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" 
+                                        onclick="return confirm('Remove this request permanently?')">
+                                    <i class="fa-solid fa-trash-can me-1"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-5 bg-white rounded-4 border border-dashed">
+                    <i class="fa-solid fa-clipboard-question fa-3x text-light mb-3"></i>
+                    <p class="text-muted">No active help requests found.</p>
+                    <button class="btn btn-outline-brand-green rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#requestModal">Post a Request</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-outline-brand-green {
+        border-color: #2a7a58;
+        color: #2a7a58;
+    }
+    .btn-outline-brand-green:hover {
+        background-color: #2a7a58;
+        color: white;
+    }
+    .border-dashed {
+        border: 2px dashed #dee2e6 !important;
+    }
+</style>
+{% endblock %}

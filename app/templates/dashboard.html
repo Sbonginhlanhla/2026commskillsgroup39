@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 1.5rem; background-color: var(--brand-green-light);">
+                <div class="text-center">
+                    <div class="user-avatar-initials mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                        {{ current_user.first_name[0] }}
+                    </div>
+                    <h3 class="serif-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
+                    <p class="text-muted">{{ current_user.headline or 'No headline set' }}</p>
+                    <div class="badge bg-white text-success px-3 py-2 rounded-pill shadow-sm">
+                        <i class="fas fa-heart me-1"></i> {{ current_user.vouch_count }} Vouches
+                    </div>
+                </div>
+                <hr>
+                <a href="{{ url_for('create_profile') }}" class="btn btn-outline-success w-100 rounded-pill fw-bold">Edit Profile</a>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h2 class="serif-heading mb-4">My Requests</h2>
+            {% if requests %}
+                {% for req in requests %}
+                <div class="card shadow-sm border-0 mb-3 p-3" style="border-radius: 1rem;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 fw-bold">{{ req.title }}</h5>
+                            <span class="badge bg-light text-dark rounded-pill">{{ req.category }}</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted d-block mb-2">{{ req.date_posted.strftime('%d %b') }}</small>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-light rounded-4">
+                    <p class="text-muted">You haven't posted any requests yet.</p>
+                    <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-success rounded-pill px-4">+ Create One Now</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

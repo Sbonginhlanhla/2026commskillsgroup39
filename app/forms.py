@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
 
+
 class RegistrationForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
     last_name = StringField('Surname', validators=[DataRequired(), Length(min=2, max=50)])
@@ -11,7 +12,14 @@ class RegistrationForm(FlaskForm):
     registration_code = StringField('Registration Code', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    
+    # --- ADD THIS LINE HERE ---
+    agree_terms = BooleanField('I agree to the Terms and Conditions', 
+                               validators=[DataRequired(message="You must agree to the terms to proceed.")])
+    
     submit = SubmitField('Sign Up')
+
+    # ... keep your validation methods below as they are ...
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()

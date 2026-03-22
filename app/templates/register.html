@@ -1,25 +1,39 @@
 {% extends "layout.html" %}
 {% block content %}
 <style>
-    /* Custom classes to apply your specific green color */
-    .text-brand-green {
-        color: #2a7a58 !important;
+    /* Brand Colors */
+    .text-brand-green { color: #2a7a58 !important; }
+    .btn-brand-green { background-color: #2a7a58; border-color: #2a7a58; color: white; }
+    .btn-brand-green:hover { background-color: #1f5a41; color: white; }
+    
+    /* Error Styling */
+    .form-error-msg { color: #dc3545; font-size: 0.875em; margin-top: 0.25rem; }
+    
+    /* Terms & Conditions Styling */
+    .terms-text { font-size: 0.9rem; color: #4b4b4b; }
+    .terms-link { color: #2a7a58; text-decoration: underline; cursor: pointer; }
+
+    /* Centered Password Toggle Eye Icon */
+    .password-wrapper { 
+        position: relative; 
+        display: flex;
+        align-items: center;
     }
-    .btn-brand-green {
-        background-color: #2a7a58;
-        border-color: #2a7a58;
-        color: white;
+    
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%); /* This centers it perfectly vertically */
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 10;
+        font-size: 1.1rem;
     }
-    .btn-brand-green:hover {
-        background-color: #1f5a41; /* Slightly darker green for when you hover over the button */
-        border-color: #1f5a41;
-        color: white;
-    }
-    /* Small style for displaying form validation errors */
-    .form-error-msg {
-        color: #dc3545;
-        font-size: 0.875em;
-        margin-top: 0.25rem;
+    
+    /* Prevents long passwords from overlapping the icon */
+    .password-input-field {
+        padding-right: 40px !important;
     }
 </style>
 
@@ -31,6 +45,7 @@
                     <h2 class="fw-bold text-brand-green">Join the Community</h2>
                     <p class="text-muted">Enter your details to start exchanging skills.</p>
                 </div>
+                
                 <form method="POST">
                     {{ form.hidden_tag() }}
                     
@@ -53,32 +68,33 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Username</label>
-                        {{ form.username(class="form-control", placeholder="Choose a unique username") }}
+                        {{ form.username(class="form-control") }}
                         {% for error in form.username.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Area Registration Code</label>
-                        {{ form.registration_code(class="form-control", placeholder="Required for access") }}
-                        {% for error in form.registration_code.errors %}
-                            <div class="form-error-msg">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="mb-3">
                         <label class="form-label fw-semibold">Email Address</label>
-                        {{ form.email(class="form-control", placeholder="name@example.com") }}
+                        {{ form.email(class="form-control") }}
                         {% for error in form.email.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label fw-semibold">Registration Code</label>
+                        {{ form.registration_code(class="form-control", placeholder="Enter Comm code") }}
+                        {% for error in form.registration_code.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                        <small class="text-muted">Hint: Your Comm Skill Exchange Code</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label fw-semibold">Password</label>
-                        <div class="password-container">
-                            {{ form.password(class="form-control", id="reg-pass") }}
+                        <div class="password-wrapper">
+                            {{ form.password(class="form-control password-input-field", id="reg-pass") }}
                             <i class="fa-solid fa-eye toggle-password" id="reg-icon" onclick="togglePassword('reg-pass', 'reg-icon')"></i>
                         </div>
                         {% for error in form.password.errors %}
@@ -88,8 +104,18 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Confirm Password</label>
-                        {{ form.confirm_password(class="form-control", placeholder="Repeat your password") }}
+                        {{ form.confirm_password(class="form-control") }}
                         {% for error in form.confirm_password.errors %}
+                            <div class="form-error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-check mb-4">
+                        {{ form.agree_terms(class="form-check-input", id="termsCheck") }}
+                        <label class="form-check-label terms-text" for="termsCheck">
+                            I agree to the <span class="terms-link" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</span> and the processing of my data.
+                        </label>
+                        {% for error in form.agree_terms.errors %}
                             <div class="form-error-msg">{{ error }}</div>
                         {% endfor %}
                     </div>
@@ -102,4 +128,40 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Community Conduct</h6>
+                <p>By joining Skills Exchange, you agree to treat all members with respect. No harassment or discrimination will be tolerated.</p>
+                <h6>2. POPIA & Privacy</h6>
+                <p>We value your privacy. Your data is protected according to South African privacy laws.</p>
+                <h6>3. Liability</h6>
+                <p>Users engage in exchanges at their own risk.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-brand-green" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    }
+</script>
 {% endblock content %}

@@ -6,12 +6,27 @@
     <title>Skills Exchange {% if title %}- {{ title }}{% endif %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,.1); }
-        .main-container { min-height: 80vh; padding-top: 30px; padding-bottom: 50px; }
+        body { 
+            background-color: #f4f7f6; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,.1); border-bottom: 3px solid #2a7a58; }
+        .main-container { flex: 1; padding-top: 30px; padding-bottom: 50px; }
         
+        /* Brand Green Accents */
+        .text-brand-green { color: #2a7a58 !important; }
+        .bg-brand-green { background-color: #2a7a58 !important; }
+
+        .serif-heading {
+            font-family: 'Merriweather', serif;
+        }
+
         /* Professional Password Toggle Styling */
         .password-container { position: relative; }
         .toggle-password {
@@ -24,8 +39,19 @@
             z-index: 10;
         }
         
-        /* Custom Card Styling for Forms */
-        .card { border-radius: 12px; border: none; }
+        .card { border-radius: 12px; border: none; transition: transform 0.2s; }
+        .nav-link { transition: color 0.2s; position: relative; }
+        .nav-link:hover { color: #2a7a58 !important; }
+
+        /* Dropdown Styling */
+        .dropdown-menu { border: none; border-radius: 12px; margin-top: 10px; }
+        .dropdown-item:hover { background-color: #e9f2ee; color: #2a7a58; }
+
+        /* Badge Fine-tuning */
+        .badge-notify {
+            font-size: 0.65rem;
+            padding: 0.25em 0.5em;
+        }
     </style>
 </head>
 <body>
@@ -33,31 +59,55 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
-                <i class="fa-solid fa-people-arrows me-2 text-info"></i>SkillsExchange
+                <i class="fa-solid fa-people-arrows me-2 text-brand-green"></i>SkillsExchange
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('home') }}">Browse Skills</a>
                     </li>
+                    
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link text-info" href="#">
-                                <i class="fa-solid fa-user-circle me-1"></i>{{ current_user.username }}
+                            <a class="nav-link px-3" href="{{ url_for('my_activity') }}">
+                                <i class="fa-solid fa-bolt-lightning me-1 text-brand-green"></i> My Activity
+                                {% if notification_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger badge-notify">
+                                        {{ notification_count }}
+                                        <span class="visually-hidden">active requests</span>
+                                    </span>
+                                {% endif %}
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle fw-semibold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-circle-user me-1 text-info"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('create_profile') }}">
+                                        <i class="fa-solid fa-user-pen me-2 text-muted"></i>
+                                        {% if current_user.headline %} Edit Profile {% else %} Complete Profile {% endif %}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                        <i class="fa-solid fa-sign-out-alt me-2"></i>Logout
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-outline-info btn-sm px-4 rounded-pill" href="{{ url_for('register') }}">Join Community</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -69,8 +119,15 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="fa-solid fa-circle-info me-2"></i>{{ message }}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                        {% if category == 'success' %}
+                            <i class="fa-solid fa-check-circle me-2"></i>
+                        {% elif category == 'danger' %}
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        {% else %}
+                            <i class="fa-solid fa-circle-info me-2"></i>
+                        {% endif %}
+                        {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
@@ -78,33 +135,43 @@
         {% endwith %}
     </div>
 
-    <div class="container main-container">
+    <main class="container main-container">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
-    <footer class="bg-dark text-white-50 py-3 mt-auto">
+    <footer class="bg-dark text-white-50 py-4 mt-auto">
         <div class="container text-center">
-            <small>&copy; 2026 Community Skills Exchange. All Rights Reserved.</small>
+            <div class="mb-2">
+                <a href="#" class="text-white-50 me-3 text-decoration-none small">Privacy Policy</a>
+                <a href="#" class="text-white-50 text-decoration-none small">Terms of Service</a>
+            </div>
+            <small>&copy; 2026 Community Skills Exchange. Built with <i class="fa-solid fa-heart text-danger"></i> for collaboration.</small>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        /**
-         * togglePassword
-         * Used to switch between text and password visibility in input fields
-         */
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                icon.classList.replace("fa-eye", "fa-eye-slash");
-            } else {
-                passwordInput.type = "password";
-                icon.classList.replace("fa-eye-slash", "fa-eye");
+            if (passwordInput && icon) {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    icon.classList.replace("fa-eye", "fa-eye-slash");
+                } else {
+                    passwordInput.type = "password";
+                    icon.classList.replace("fa-eye-slash", "fa-eye");
+                }
             }
         }
+
+        setTimeout(function() {
+            let alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
     </script>
 </body>
 </html>
