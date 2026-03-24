@@ -8,6 +8,7 @@ from app.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswo
 from app.models import User, Request, Message, Rating
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message as MailMessage
+from sqlalchemy import func  # Added for live stats calculations
 
 # --- Context Processors ---
 
@@ -59,13 +60,34 @@ def send_verification_email(user):
 @app.route("/")
 @app.route("/home")
 def home():
+    # Fetch profiles based on auth status
     if current_user.is_authenticated:
         all_users = User.query.filter(User.headline != None, User.id != current_user.id).all()
     else:
         all_users = User.query.filter(User.headline != None).all()
         
     all_requests = Request.query.order_by(Request.date_posted.desc()).all()
-    return render_template('home.html', title='Home', profiles=all_users, requests=all_requests)
+
+    # --- LIVE STATS LOGIC ---
+    # 1. Total Member Count
+    member_count = User.query.count()
+
+    # 2. Average Rating Calculation
+    # We query the Rating table for the average of the 'score' column
+    avg_rating_value = db.session.query(func.avg(Rating.score)).scalar()
+    
+    if avg_rating_value:
+        avg_rating = round(float(avg_rating_value), 1)
+    else:
+        # Default starting rating for a new community
+        avg_rating = 5.0 
+
+    return render_template('home.html', 
+                           title='Home', 
+                           profiles=all_users, 
+                           requests=all_requests,
+                           member_count=member_count,
+                           avg_rating=avg_rating)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -164,7 +186,6 @@ def create_profile():
     full_name = f"{current_user.first_name} {current_user.last_name}"
     return render_template('create_profile.html', title='Edit Profile', user=current_user, full_name=full_name)
 
-# --- POST REQUEST (UPDATED WITH FLASH & REDIRECT) ---
 @app.route('/post-request', methods=['POST'])
 @login_required
 def post_request():

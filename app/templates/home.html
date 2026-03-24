@@ -159,7 +159,7 @@
 <div class="row text-center mb-5 g-4">
     <div class="col-6 col-md-3">
         <div class="card stat-card shadow-sm py-3">
-            <div class="stat-number">248</div>
+            <div class="stat-number">{{ member_count }}</div>
             <div class="text-muted small fw-bold">MEMBERS</div>
         </div>
     </div>
@@ -177,7 +177,7 @@
     </div>
     <div class="col-6 col-md-3">
         <div class="card stat-card shadow-sm py-3">
-            <div class="stat-number">4.9★</div>
+            <div class="stat-number">{{ avg_rating }}★</div>
             <div class="text-muted small fw-bold">RATING</div>
         </div>
     </div>
@@ -349,7 +349,6 @@ document.addEventListener("DOMContentLoaded", function() {
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                // Get the CSRF token from the hidden input in the modal
                 const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
                 const response = await fetch(`/vouch/${userId}`, { 
@@ -359,7 +358,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 });
 
-                // Check for Auth status
                 if (response.status === 401) {
                     window.location.href = "/login";
                     return;
