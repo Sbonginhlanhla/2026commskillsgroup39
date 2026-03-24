@@ -4,25 +4,56 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 1.5rem; background-color: var(--brand-green-light);">
-                <div class="text-center">
-                    <div class="user-avatar-initials mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; background-color: white; color: var(--brand-green); display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
-                        {{ current_user.first_name[0] }}
-                    </div>
-                    <h3 class="serif-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
-                    <p class="text-muted">{{ current_user.headline or 'No headline set yet' }}</p>
-                    
-                    <div class="badge bg-white text-success px-3 py-2 rounded-pill shadow-sm mb-3">
-                        <i class="fas fa-heart me-1"></i> {{ current_user.vouch_count }} Vouches
-                    </div>
+    <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 1.5rem; background-color: var(--brand-green-light);">
+        <div class="text-center">
+            {% if current_user.profile_pic %}
+                <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_pic) }}" 
+                     class="mx-auto mb-3 shadow-sm" 
+                     style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white;">
+            {% else %}
+                <div class="user-avatar-initials mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; background-color: white; color: var(--brand-green); display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
+                    {{ current_user.first_name[0] }}
                 </div>
-                <hr>
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('create_profile') }}" class="btn btn-outline-success rounded-pill fw-bold">Edit Profile</a>
-                    <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-success rounded-pill fw-bold">+ New Request</button>
-                </div>
+            {% endif %}
+
+            <h3 class="serif-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
+            <p class="text-muted mb-1">{{ current_user.headline or 'No headline set yet' }}</p>
+            
+            <div class="badge bg-white text-success px-3 py-2 rounded-pill shadow-sm mb-3">
+                <i class="fas fa-heart me-1"></i> {{ current_user.vouch_count }} Vouches
             </div>
         </div>
+        
+        <hr>
+
+        {% if current_user.skill_cat %}
+        <div class="mb-3">
+            <h6 class="fw-bold small text-uppercase" style="color: var(--brand-green); letter-spacing: 1px;">Primary Skill</h6>
+            <p class="text-dark fw-bold mb-0">{{ current_user.skill_cat }}</p>
+            <small class="text-muted">Level: {{ current_user.skill_level|capitalize }}</small>
+        </div>
+        {% endif %}
+
+        {% if current_user.help_text %}
+        <div class="mb-3">
+            <h6 class="fw-bold small text-uppercase" style="color: var(--brand-green); letter-spacing: 1px;">How I Help</h6>
+            <p class="text-muted small mb-0">{{ current_user.help_text }}</p>
+        </div>
+        {% endif %}
+
+        {% if current_user.languages %}
+        <div class="mb-3">
+            <h6 class="fw-bold small text-uppercase" style="color: var(--brand-green); letter-spacing: 1px;">Languages</h6>
+            <p class="text-muted small mb-0">{{ current_user.languages }}</p>
+        </div>
+        {% endif %}
+        
+        <div class="d-grid gap-2 mt-4">
+            <a href="{{ url_for('create_profile') }}" class="btn btn-outline-success rounded-pill fw-bold">Edit Profile</a>
+            <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-success rounded-pill fw-bold">+ New Request</button>
+        </div>
+    </div>
+</div>
 
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4">

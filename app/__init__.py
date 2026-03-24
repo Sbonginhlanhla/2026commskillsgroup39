@@ -4,7 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_migrate import Migrate  # 1. ADD THIS IMPORT
+from flask_migrate import Migrate 
+from flask_wtf.csrf import CSRFProtect  # <--- 1. ADDED THIS
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,8 +23,9 @@ app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('EMAIL_USER')
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)        # 2. ADD THIS LINE (Links Flask to Migrations)
+migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
+csrf = CSRFProtect(app)          # <--- 2. ADDED THIS (Initializes the token)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'

@@ -2,12 +2,13 @@
 
 {% block content %}
 <style>
-    /* Global Brand Colors */
+    /* Global Brand Colors & Typography */
     :root {
         --brand-green: #2a7a58;
         --brand-green-light: #e9f2ee;
         --text-dark: #1a2b22;
         --whatsapp-green: #25D366;
+        --messenger-blue: #0084ff;
     }
     
     .serif-heading {
@@ -21,39 +22,16 @@
         background-color: var(--brand-green);
         border-radius: 1.5rem;
         padding: 4rem 3rem;
+        margin-bottom: 2rem;
     }
 
     .hero-heading {
-        font-family: 'Merriweather', serif;
         font-size: 3.5rem;
         font-weight: 700;
         line-height: 1.1;
     }
 
-    /* Search Input Enhancement */
-    #searchInput::placeholder {
-        color: rgba(26, 43, 34, 0.5);
-    }
-    #searchInput:focus {
-        background-color: white !important;
-        color: var(--text-dark) !important;
-        box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25);
-    }
-
     /* Card & UI Elements */
-    .stat-card {
-        border-radius: 1rem;
-        border: 1px solid #eaeaea;
-        transition: transform 0.2s ease;
-    }
-
-    .stat-number {
-        color: var(--brand-green);
-        font-family: 'Merriweather', serif;
-        font-size: 2rem;
-        font-weight: 700;
-    }
-
     .dashboard-card {
         border-radius: 1.2rem;
         border: 1px solid #eaeaea;
@@ -61,36 +39,38 @@
         transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
+        background: white;
     }
 
-    .pill-badge {
-        background-color: #f4f5f7;
-        color: #555;
-        border-radius: 20px;
-        padding: 0.4rem 0.9rem;
-        font-size: 0.85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: 0.2s;
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
     }
 
-    .pill-badge.active-filter {
-        background-color: var(--brand-green);
-        color: white;
+    /* Profile Clickable Area */
+    .profile-link-wrapper {
+        text-decoration: none !important;
+        color: inherit !important;
+        transition: opacity 0.2s;
+        display: flex;
+        align-items: center;
     }
 
-    /* Avatar & Buttons */
+    .profile-link-wrapper:hover {
+        opacity: 0.7;
+    }
+
     .user-avatar-img {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid var(--brand-green-light);
     }
 
     .user-avatar-initials {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background-color: var(--brand-green-light);
         color: var(--brand-green);
@@ -100,42 +80,63 @@
         font-weight: bold;
     }
 
+    /* Badges & Filters */
+    .pill-badge {
+        background-color: #f4f5f7;
+        color: #555;
+        border-radius: 20px;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+        border: none;
+    }
+
+    .pill-badge.active-filter {
+        background-color: var(--brand-green);
+        color: white;
+    }
+
+    /* Buttons */
+    .btn-chat-live {
+        background-color: white;
+        color: var(--messenger-blue);
+        border: 1px solid var(--messenger-blue);
+    }
+
+    .btn-chat-live:hover {
+        background-color: var(--messenger-blue);
+        color: white;
+    }
+
     .btn-whatsapp {
         background-color: var(--whatsapp-green);
         color: white;
-        transition: all 0.3s ease;
     }
 
     .btn-whatsapp:hover {
         background-color: #128C7E;
         color: white;
-        transform: translateY(-2px);
     }
 
-    .btn-vouch {
-        border: 1px solid var(--brand-green);
+    .stat-card {
+        border-radius: 1rem;
+        border: 1px solid #eaeaea;
+    }
+
+    .stat-number {
         color: var(--brand-green);
-        transition: all 0.3s ease;
-    }
-
-    .btn-vouch:hover {
-        background-color: var(--brand-green);
-        color: white;
-    }
-
-    .exchange-box {
-        background-color: #f9f9f9;
-        border-radius: 0.8rem;
-        padding: 0.8rem 1.2rem;
-        font-size: 0.95rem;
-        border-left: 4px solid var(--brand-green);
+        font-family: 'Merriweather', serif;
+        font-size: 2rem;
+        font-weight: 700;
     }
 </style>
 
-<div class="hero-section text-white mb-4 shadow-sm">
+<div class="hero-section text-white shadow-sm">
     <div class="row">
         <div class="col-md-9">
-            <h1 class="hero-heading mb-3">Share skills,<br>strengthen community.</h1>
+            <h1 class="hero-heading mb-3">Share skills, <span class="d-none d-md-inline"><br></span>strengthen community.</h1>
             <p class="lead mb-4" style="opacity: 0.9;">Exchange expertise with neighbours—no money needed.</p>
             
             <div class="d-flex gap-3 align-items-center flex-wrap">
@@ -156,44 +157,44 @@
 </div>
 
 <div class="row text-center mb-5 g-4">
-    <div class="col-md-3">
-        <div class="card stat-card shadow-sm py-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm py-3">
             <div class="stat-number">248</div>
-            <div class="text-muted small fw-bold">ACTIVE MEMBERS</div>
+            <div class="text-muted small fw-bold">MEMBERS</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card shadow-sm py-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm py-3">
             <div class="stat-number">{{ profiles|length }}</div>
-            <div class="text-muted small fw-bold">SKILLS SHARED</div>
+            <div class="text-muted small fw-bold">SKILLS</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card shadow-sm py-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm py-3">
             <div class="stat-number">{{ requests|length }}</div>
-            <div class="text-muted small fw-bold">ACTIVE REQUESTS</div>
+            <div class="text-muted small fw-bold">REQUESTS</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card shadow-sm py-4">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card shadow-sm py-3">
             <div class="stat-number">4.9★</div>
-            <div class="text-muted small fw-bold">AVG RATING</div>
+            <div class="text-muted small fw-bold">RATING</div>
         </div>
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-2 mt-5">
+<div class="d-flex justify-content-between align-items-center mt-5 mb-2">
     <h2 class="serif-heading m-0">Available Skills</h2>
 </div>
-<p class="text-muted mb-4">Browse what your neighbours are offering</p>
+<p class="text-muted mb-4">Click a profile to learn more or start a chat</p>
 
 <div class="d-flex flex-wrap gap-2 mb-4" id="filterContainer">
-    <span class="pill-badge filter-pill active-filter">All</span>
-    <span class="pill-badge filter-pill">Home Repair</span>
-    <span class="pill-badge filter-pill">Education</span>
-    <span class="pill-badge filter-pill">Creative Arts</span>
-    <span class="pill-badge filter-pill">Technology</span>
-    <span class="pill-badge filter-pill">Wellness</span>
+    <button class="pill-badge filter-pill active-filter">All</button>
+    <button class="pill-badge filter-pill">Home Repair</button>
+    <button class="pill-badge filter-pill">Education</button>
+    <button class="pill-badge filter-pill">Creative Arts</button>
+    <button class="pill-badge filter-pill">Technology</button>
+    <button class="pill-badge filter-pill">Wellness</button>
 </div>
 
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-5" id="skillsGrid">
@@ -212,30 +213,35 @@
                 <p class="text-muted small mb-4 searchable-bio">{{ (profile.bio or "No description provided.") | truncate(90) }}</p>
                 
                 <div class="mt-auto pt-3 border-top">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center">
+                    <div class="mb-3">
+                        <a href="{{ url_for('user_profile', user_id=profile.id) }}" class="profile-link-wrapper">
                             {% if profile.profile_pic %}
-                                <img src="{{ url_for('static', filename='profile_pics/' + profile.profile_pic) }}" class="user-avatar-img me-2">
+                                <img src="{{ url_for('static', filename='profile_pics/' + profile.profile_pic) }}" class="user-avatar-img me-2" loading="lazy">
                             {% else %}
                                 <div class="user-avatar-initials me-2">{{ profile.first_name[0] }}{{ profile.last_name[0] }}</div>
                             {% endif %}
                             <div>
-                                <div class="fw-bold searchable-name" style="font-size: 0.9rem;">{{ profile.first_name }} {{ profile.last_name }}</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">{{ profile.skill_level or 'Member' }}</div>
+                                <div class="fw-bold searchable-name text-dark" style="font-size: 0.9rem;">{{ profile.first_name }} {{ profile.last_name }}</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">{{ profile.skill_level or 'Member' }} • <span class="text-primary">View Profile</span></div>
                             </div>
-                        </div>
+                        </a>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
-                        {% if profile.phone %}
-                            {% set clean_phone = profile.phone | replace(' ', '') | replace('+', '') %}
-                            <a href="https://wa.me/{{ clean_phone }}?text=Hi%20{{ profile.first_name }},%20I%20saw%20your%20'{{ profile.headline }}'%20profile%20on%20Skills%20Exchange." 
-                               target="_blank" class="btn btn-sm btn-whatsapp rounded-pill px-3 fw-bold shadow-sm flex-grow-1">
-                                <i class="fab fa-whatsapp me-1"></i> Chat
+                    <div class="d-grid gap-2">
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('user_profile', user_id=profile.id) }}" class="btn btn-sm btn-chat-live rounded-pill px-3 fw-bold flex-grow-1 shadow-sm">
+                                <i class="fas fa-comments me-1"></i> Message
                             </a>
-                        {% endif %}
-                        
-                        <button class="btn btn-sm btn-vouch rounded-pill px-3 fw-bold shadow-sm vouch-btn flex-grow-1" data-user-id="{{ profile.id }}">
+                            
+                            {% if profile.phone %}
+                                {% set clean_phone = profile.phone | replace(' ', '') | replace('+', '') %}
+                                <a href="https://wa.me/{{ clean_phone }}" target="_blank" class="btn btn-sm btn-whatsapp rounded-pill px-3 fw-bold flex-grow-1 shadow-sm">
+                                    <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <button class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold vouch-btn" data-user-id="{{ profile.id }}">
                             <i class="fas fa-thumbs-up me-1"></i> Vouch
                         </button>
                     </div>
@@ -244,79 +250,52 @@
         </div>
         {% endif %}
     {% endfor %}
+    
     <div id="noResults" class="col-12 text-center py-5 d-none">
         <p class="text-muted h5">No neighbors found matching that skill or name.</p>
     </div>
 </div>
 
-<h2 class="serif-heading mb-4">Active Requests</h2>
-<div class="row row-cols-1 row-cols-md-2 g-4 mb-5" id="requestsGrid">
-    {% for req in requests %}
-        {% if req.author.id != current_user.id %}
-        <div class="col request-card" data-category="{{ req.category }}">
-            <div class="card dashboard-card shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="pill-badge" style="background-color: #fdf3e1; color: #d08c1b;">Pending</span>
-                    <span class="text-muted small">{{ req.date_posted.strftime('%d %b %Y') }}</span>
-                </div>
-                
-                <h4 class="serif-heading h5 mb-3">{{ req.title }}</h4>
-                <p class="text-muted small mb-3">{{ (req.details or "No further details.") | truncate(150) }}</p>
-
-                <div class="exchange-box mb-4">
-                    <span class="fw-bold">{{ req.category }}</span> 
-                    <span style="color: #f5a623; margin: 0 8px;">↔</span> 
-                    <span class="text-muted">Offering: {{ req.offer }}</span>
-                </div>
-                
-                <div class="d-flex align-items-center mt-auto">
-                    <div class="user-avatar-initials me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                        {{ req.author.first_name[0] if req.author.first_name else '?' }}
+<div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 1.2rem; border: none;">
+            <div class="modal-header border-0 pt-4 px-4">
+                <h3 class="serif-heading h4 modal-title" id="requestModalLabel">Post a New Request</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{ url_for('post_request') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">What do you need help with?</label>
+                        <input type="text" name="req_title" class="form-control rounded-pill" placeholder="e.g., Help fixing a leaky tap" required>
                     </div>
-                    <span class="text-dark fw-bold" style="font-size: 0.9rem;">{{ req.author.first_name }} {{ req.author.last_name }}</span>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Category</label>
+                        <select name="req_category" class="form-select rounded-pill">
+                            <option>Home Repair</option>
+                            <option>Education</option>
+                            <option>Creative Arts</option>
+                            <option>Technology</option>
+                            <option>Wellness</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">What can you offer in return?</label>
+                        <input type="text" name="req_offer" class="form-control rounded-pill" placeholder="e.g., I can teach basic Python">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="req_details" class="form-control" rows="3" style="border-radius: 1rem;" placeholder="Explain what you need..." required></textarea>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-lg rounded-pill fw-bold text-white" style="background-color: var(--brand-green);">Post Request</button>
+                    </div>
+                </form>
             </div>
         </div>
-        {% endif %}
-    {% endfor %}
-</div>
-
-<div class="modal fade" id="requestModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 1.2rem;">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="serif-heading modal-title">Post a New Request</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <form id="requestForm">
-            <div class="mb-3">
-                <label class="form-label fw-bold">What do you need?</label>
-                <input type="text" class="form-control" name="req_title" placeholder="e.g., Fix my leaky tap" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Category</label>
-                <select class="form-select" name="req_category">
-                    <option>Home Repair</option>
-                    <option>Education</option>
-                    <option>Technology</option>
-                    <option>Wellness</option>
-                    <option>Creative Arts</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">What will you offer in return?</label>
-                <input type="text" class="form-control" name="req_offer" placeholder="e.g., 1 hour of Yoga lesson" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Tell us more details</label>
-                <textarea class="form-control" name="req_details" rows="3" placeholder="Explain what you need..." required></textarea>
-            </div>
-            <button type="submit" id="requestSubmitBtn" class="btn w-100 fw-bold mt-3" style="background-color: var(--brand-green); color: white; border-radius: 0.8rem; padding: 0.8rem;">Submit Request</button>
-        </form>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -324,7 +303,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('searchInput');
     const filterPills = document.querySelectorAll('.filter-pill');
     const skillCards = document.querySelectorAll('.skill-card');
-    const requestCards = document.querySelectorAll('.request-card');
     const noResults = document.getElementById('noResults');
 
     function applyFilters() {
@@ -332,7 +310,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const activeCategory = document.querySelector('.active-filter').textContent.trim();
         let visibleCount = 0;
 
-        // Filter Skills
         skillCards.forEach(card => {
             const headline = card.querySelector('.searchable-headline').textContent.toLowerCase();
             const bio = card.querySelector('.searchable-bio').textContent.toLowerCase();
@@ -350,25 +327,9 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        // Filter Requests (Optional: syncing search with requests too)
-        requestCards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            const category = card.getAttribute('data-category');
-            const matchesCategory = activeCategory === 'All' || category === activeCategory;
-            const matchesSearch = text.includes(searchTerm);
-
-            card.style.display = (matchesSearch && matchesCategory) ? "block" : "none";
-        });
-
-        // Handle "No Results" display
-        if (visibleCount === 0 && searchTerm !== "") {
-            noResults.classList.remove('d-none');
-        } else {
-            noResults.classList.add('d-none');
-        }
+        noResults.classList.toggle('d-none', visibleCount > 0 || searchTerm === "");
     }
 
-    // Input events
     searchInput.addEventListener('input', applyFilters);
 
     filterPills.forEach(pill => {
@@ -379,7 +340,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Vouch AJAX Logic
     document.querySelectorAll('.vouch-btn').forEach(button => {
         button.addEventListener('click', async function() {
             const userId = this.getAttribute('data-user-id');
@@ -389,15 +349,30 @@ document.addEventListener("DOMContentLoaded", function() {
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                const response = await fetch(`/vouch/${userId}`, { method: 'POST' });
+                // Get the CSRF token from the hidden input in the modal
+                const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+                const response = await fetch(`/vouch/${userId}`, { 
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                });
+
+                // Check for Auth status
+                if (response.status === 401) {
+                    window.location.href = "/login";
+                    return;
+                }
+
                 const data = await response.json();
                 
                 if (data.new_count !== undefined) {
                     countSpan.textContent = data.new_count;
                     this.innerHTML = '<i class="fas fa-check"></i> Vouched';
-                    this.classList.replace('btn-vouch', 'btn-success');
+                    this.classList.replace('btn-outline-dark', 'btn-success text-white');
                 } else {
-                    alert(data.error || "Error vouching");
+                    alert("Error vouching");
                     this.disabled = false;
                     this.innerHTML = '<i class="fas fa-thumbs-up me-1"></i> Vouch';
                 }
@@ -407,31 +382,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-
-    // Form Handling
-    const requestForm = document.getElementById('requestForm');
-    if(requestForm) {
-        requestForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('requestSubmitBtn');
-            btn.disabled = true;
-            btn.textContent = "Posting...";
-
-            const formData = new FormData(this);
-            try {
-                const response = await fetch('/post-request', { method: 'POST', body: formData });
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || "Failed to post");
-                }
-            } catch(err) {
-                btn.disabled = false;
-                btn.textContent = "Error! Try Again";
-            }
-        });
-    }
 });
 </script>
+
 {% endblock content %}

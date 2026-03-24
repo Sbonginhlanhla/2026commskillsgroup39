@@ -125,17 +125,20 @@
                     </div>
 
                     <div class="popia-container">
-                        <h6 class="fw-bold text-dark mb-2"><i class="fas fa-user-shield me-2"></i>POPIA Consent</h6>
-                        <div class="popia-text mb-3">
-                            By registering, you acknowledge that <strong>2026commskills</strong> will process your personal data (Name, Email, and Skills) to facilitate community connections under the Protection of Personal Information Act.
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="popiaCheck">
-                            <label class="form-check-label fw-bold" for="popiaCheck" style="font-size: 0.9rem;">
-                                I agree to the processing of my personal information.
-                            </label>
-                        </div>
-                    </div>
+    <h6 class="fw-bold text-dark mb-2"><i class="fas fa-user-shield me-2"></i>POPIA Consent</h6>
+    <div class="popia-text mb-3">
+        By registering, you acknowledge that <strong>2026commskills</strong> will process your personal data...
+    </div>
+    <div class="form-check">
+        {{ form.agree_terms(class="form-check-input", id="popiaCheck") }}
+        <label class="form-check-label fw-bold" for="popiaCheck" style="font-size: 0.9rem;">
+            {{ form.agree_terms.label.text }}
+        </label>
+        {% for error in form.agree_terms.errors %}
+            <div class="form-error-msg">{{ error }}</div>
+        {% endfor %}
+    </div>
+</div>
 
                     <div class="d-grid">
                         {{ form.submit(class="btn btn-brand-green btn-lg shadow-sm", id="submitBtn", disabled=True) }}

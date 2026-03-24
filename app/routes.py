@@ -31,23 +31,27 @@ def save_file(form_file, folder):
 
 def send_verification_email(user):
     token = user.get_reset_token() 
-    link = url_for('confirm_email', token=token, _external=True)
-    msg = MailMessage('Verify your account on Skills Exchange', 
-                  sender=app.config['MAIL_USERNAME'], 
-                  recipients=[user.email])
-    msg.html = f'''
-        <div style="font-family: sans-serif; padding: 24px; color: #24292e;">
-            <h2 style="color: #2a7a58;">Hey {user.username}!</h2>
-            <p>To complete your registration on Skills Exchange, please verify your account:</p>
-            <div style="margin: 32px 0;">
-                <a href="{link}" 
-                   style="background-color: #2a7a58; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                    Verify Account
+    confirm_url = url_for('confirm_email', token=token, _external=True)
+    
+    msg = MailMessage(
+        'Verify your account on Skills Exchange', 
+        sender=app.config['MAIL_USERNAME'], 
+        recipients=[user.email]
+    )
+    
+    msg.html = f"""
+        <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #eee;">
+            <h2 style="color: #2a7a58;">Welcome, {user.username}!</h2>
+            <p>Thanks for joining the Skills Exchange community. Please verify your email to get started:</p>
+            <div style="margin: 30px 0;">
+                <a href="{confirm_url}" 
+                   style="background-color: #2a7a58; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                    Verify My Account
                 </a>
             </div>
-            <p style="font-size: 11px; color: #586069;">This link will expire in 30 minutes.</p>
+            <p style="font-size: 11px; color: #aaa;">This link will expire in 30 minutes.</p>
         </div>
-    '''
+    """
     mail.send(msg)
 
 # --- Authentication & Core Routes ---
@@ -67,21 +71,27 @@ def home():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
+    
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(
-            first_name=form.first_name.data, 
-            last_name=form.last_name.data, 
-            username=form.username.data, 
-            email=form.email.data, 
-            password=hashed_password
-        )
-        db.session.add(user)
-        db.session.commit()
-        send_verification_email(user)
-        flash('Account created! Please check your email to verify.', 'info')
-        return redirect(url_for('login'))
+        try:
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            user = User(
+                first_name=form.first_name.data, 
+                last_name=form.last_name.data, 
+                username=form.username.data, 
+                email=form.email.data, 
+                password=hashed_password
+            )
+            db.session.add(user)
+            db.session.commit()
+            send_verification_email(user)
+            flash('Account created! Please check your email to verify.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred. Please try again.', 'danger')
+            
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -92,11 +102,13 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
+            if not user.confirmed:
+                flash('Please verify your email address before logging in.', 'warning')
+                return render_template('login.html', title='Login', form=form)
+            
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            if not next_page or urlparse(next_page).netloc != '':
-                next_page = url_for('home')
-            return redirect(next_page)
+            return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
@@ -145,35 +157,25 @@ def create_profile():
             if file and file.filename != '':
                 current_user.profile_pic = save_file(file, 'profile_pics')
 
-        if 'certificate' in request.files:
-            file = request.files['certificate']
-            if file and file.filename != '':
-                current_user.certificate_file = save_file(file, 'certificates')
-
         db.session.commit()
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({"status": "saved"}), 200
-
-        flash('Your profile has been fully updated!', 'success')
+        flash('Your profile has been updated!', 'success')
         return redirect(url_for('home'))
         
     full_name = f"{current_user.first_name} {current_user.last_name}"
     return render_template('create_profile.html', title='Edit Profile', user=current_user, full_name=full_name)
 
+# --- POST REQUEST (UPDATED WITH FLASH & REDIRECT) ---
 @app.route('/post-request', methods=['POST'])
 @login_required
 def post_request():
-    # Fetching values from the form. 
-    # Ensure your HTML <textarea> uses name="req_details"
     title = request.form.get('req_title')
     category = request.form.get('req_category')
     offer = request.form.get('req_offer')
     details = request.form.get('req_details')
 
-    # Basic check to prevent empty details from crashing the DB
     if not details:
-        return jsonify({"status": "error", "message": "Details field is required"}), 400
+        flash("The description (details) is required.", "danger")
+        return redirect(url_for('home'))
 
     new_request = Request(
         title=title,
@@ -186,22 +188,24 @@ def post_request():
     try:
         db.session.add(new_request)
         db.session.commit()
-        return jsonify({"status": "success"}), 200
+        flash("Community request posted successfully!", "success")
+        return redirect(url_for('home'))
     except Exception as e:
         db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+        flash(f"Error posting request: {str(e)}", "danger")
+        return redirect(url_for('home'))
 
 @app.route("/delete-request/<int:request_id>", methods=['POST'])
 @login_required
 def delete_request(request_id):
     req = Request.query.get_or_404(request_id)
     if req.author.id != current_user.id:
-        flash('You do not have permission to delete this request.', 'danger')
+        flash('Permission denied.', 'danger')
         return redirect(url_for('dashboard'))
     
     db.session.delete(req)
     db.session.commit()
-    flash('Your request has been removed.', 'success')
+    flash('Request removed.', 'success')
     return redirect(url_for('dashboard'))
 
 # --- Password Reset ---
@@ -228,7 +232,7 @@ def reset_token(token):
         return redirect(url_for('home'))
     user = User.verify_reset_token(token)
     if user is None:
-        flash('That is an invalid or expired token', 'warning')
+        flash('Invalid or expired token', 'warning')
         return redirect(url_for('reset_request'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
@@ -291,3 +295,16 @@ def rate_user(user_id):
         db.session.commit()
         flash('Rating submitted!', 'success')
     return redirect(url_for('user_profile', user_id=user_id))
+
+@app.route('/delete_user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": f"User {user_id} deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error deleting user", "error": str(e)}), 500
