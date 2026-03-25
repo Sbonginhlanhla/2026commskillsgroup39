@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-
+ 
 {% block content %}
 <style>
     /* Global Brand Colors & Typography */
@@ -10,13 +10,13 @@
         --whatsapp-green: #25D366;
         --messenger-blue: #0084ff;
     }
-    
+   
     .serif-heading {
         font-family: 'Merriweather', 'Playfair Display', Georgia, serif;
         font-weight: 700;
         color: var(--text-dark);
     }
-
+ 
     /* Hero Styling */
     .hero-section {
         background-color: var(--brand-green);
@@ -24,13 +24,13 @@
         padding: 4rem 3rem;
         margin-bottom: 2rem;
     }
-
+ 
     .hero-heading {
         font-size: 3.5rem;
         font-weight: 700;
         line-height: 1.1;
     }
-
+ 
     /* Card & UI Elements */
     .dashboard-card {
         border-radius: 1.2rem;
@@ -41,12 +41,12 @@
         flex-direction: column;
         background: white;
     }
-
+ 
     .dashboard-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
     }
-
+ 
     /* Profile Clickable Area */
     .profile-link-wrapper {
         text-decoration: none !important;
@@ -55,11 +55,11 @@
         display: flex;
         align-items: center;
     }
-
+ 
     .profile-link-wrapper:hover {
         opacity: 0.7;
     }
-
+ 
     .user-avatar-img {
         width: 48px;
         height: 48px;
@@ -67,7 +67,7 @@
         object-fit: cover;
         border: 2px solid var(--brand-green-light);
     }
-
+ 
     .user-avatar-initials {
         width: 48px;
         height: 48px;
@@ -79,7 +79,7 @@
         justify-content: center;
         font-weight: bold;
     }
-
+ 
     /* Badges & Filters */
     .pill-badge {
         background-color: #f4f5f7;
@@ -92,39 +92,39 @@
         transition: 0.2s;
         border: none;
     }
-
+ 
     .pill-badge.active-filter {
         background-color: var(--brand-green);
         color: white;
     }
-
+ 
     /* Buttons */
     .btn-chat-live {
         background-color: white;
         color: var(--messenger-blue);
         border: 1px solid var(--messenger-blue);
     }
-
+ 
     .btn-chat-live:hover {
         background-color: var(--messenger-blue);
         color: white;
     }
-
+ 
     .btn-whatsapp {
         background-color: var(--whatsapp-green);
         color: white;
     }
-
+ 
     .btn-whatsapp:hover {
         background-color: #128C7E;
         color: white;
     }
-
+ 
     .stat-card {
         border-radius: 1rem;
         border: 1px solid #eaeaea;
     }
-
+ 
     .stat-number {
         color: var(--brand-green);
         font-family: 'Merriweather', serif;
@@ -132,20 +132,20 @@
         font-weight: 700;
     }
 </style>
-
+ 
 <div class="hero-section text-white shadow-sm">
     <div class="row">
         <div class="col-md-9">
             <h1 class="hero-heading mb-3">Share skills, <span class="d-none d-md-inline"><br></span>strengthen community.</h1>
             <p class="lead mb-4" style="opacity: 0.9;">Exchange expertise with neighbours—no money needed.</p>
-            
+           
             <div class="d-flex gap-3 align-items-center flex-wrap">
                 <div class="position-relative flex-grow-1" style="max-width: 400px;">
-                    <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill border-0" 
-                           placeholder="🔍 Search skills or people..." 
+                    <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill border-0"
+                           placeholder="🔍 Search skills or people..."
                            style="background-color: rgba(255,255,255,0.9); color: var(--text-dark);">
                 </div>
-                
+               
                 {% if current_user.is_authenticated %}
                     <button data-bs-toggle="modal" data-bs-target="#requestModal" class="btn btn-light btn-lg rounded-pill px-4 fw-bold shadow-sm">+ Post a Request</button>
                 {% else %}
@@ -155,7 +155,7 @@
         </div>
     </div>
 </div>
-
+ 
 <div class="row text-center mb-5 g-4">
     <div class="col-6 col-md-3">
         <div class="card stat-card shadow-sm py-3">
@@ -182,12 +182,12 @@
         </div>
     </div>
 </div>
-
+ 
 <div class="d-flex justify-content-between align-items-center mt-5 mb-2">
     <h2 class="serif-heading m-0">Available Skills</h2>
 </div>
 <p class="text-muted mb-4">Click a profile to learn more or start a chat</p>
-
+ 
 <div class="d-flex flex-wrap gap-2 mb-4" id="filterContainer">
     <button class="pill-badge filter-pill active-filter">All</button>
     <button class="pill-badge filter-pill">Home Repair</button>
@@ -196,7 +196,7 @@
     <button class="pill-badge filter-pill">Technology</button>
     <button class="pill-badge filter-pill">Wellness</button>
 </div>
-
+ 
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-5" id="skillsGrid">
     {% for profile in profiles %}
         {% if profile.id != current_user.id %}
@@ -208,10 +208,10 @@
                         <i class="fas fa-heart me-1"></i> <span id="vouch-count-{{ profile.id }}">{{ profile.vouch_count }}</span>
                     </span>
                 </div>
-                
+               
                 <h4 class="serif-heading h5 mb-2 searchable-headline">{{ profile.headline }}</h4>
                 <p class="text-muted small mb-4 searchable-bio">{{ (profile.bio or "No description provided.") | truncate(90) }}</p>
-                
+               
                 <div class="mt-auto pt-3 border-top">
                     <div class="mb-3">
                         <a href="{{ url_for('user_profile', user_id=profile.id) }}" class="profile-link-wrapper">
@@ -226,13 +226,13 @@
                             </div>
                         </a>
                     </div>
-
+ 
                     <div class="d-grid gap-2">
                         <div class="d-flex gap-2">
                             <a href="{{ url_for('user_profile', user_id=profile.id) }}" class="btn btn-sm btn-chat-live rounded-pill px-3 fw-bold flex-grow-1 shadow-sm">
                                 <i class="fas fa-comments me-1"></i> Message
                             </a>
-                            
+                           
                             {% if profile.phone %}
                                 {% set clean_phone = profile.phone | replace(' ', '') | replace('+', '') %}
                                 <a href="https://wa.me/{{ clean_phone }}" target="_blank" class="btn btn-sm btn-whatsapp rounded-pill px-3 fw-bold flex-grow-1 shadow-sm">
@@ -240,7 +240,7 @@
                                 </a>
                             {% endif %}
                         </div>
-
+ 
                         <button class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold vouch-btn" data-user-id="{{ profile.id }}">
                             <i class="fas fa-thumbs-up me-1"></i> Vouch
                         </button>
@@ -250,12 +250,12 @@
         </div>
         {% endif %}
     {% endfor %}
-    
+   
     <div id="noResults" class="col-12 text-center py-5 d-none">
         <p class="text-muted h5">No neighbors found matching that skill or name.</p>
     </div>
 </div>
-
+ 
 <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 1.2rem; border: none;">
@@ -265,8 +265,8 @@
             </div>
             <div class="modal-body p-4">
                 <form action="{{ url_for('post_request') }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
-                    
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                   
                     <div class="mb-3">
                         <label class="form-label fw-bold">What do you need help with?</label>
                         <input type="text" name="req_title" class="form-control rounded-pill" placeholder="e.g., Help fixing a leaky tap" required>
@@ -297,28 +297,28 @@
         </div>
     </div>
 </div>
-
+ 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('searchInput');
     const filterPills = document.querySelectorAll('.filter-pill');
     const skillCards = document.querySelectorAll('.skill-card');
     const noResults = document.getElementById('noResults');
-
+ 
     function applyFilters() {
         const searchTerm = searchInput.value.toLowerCase().trim();
         const activeCategory = document.querySelector('.active-filter').textContent.trim();
         let visibleCount = 0;
-
+ 
         skillCards.forEach(card => {
             const headline = card.querySelector('.searchable-headline').textContent.toLowerCase();
             const bio = card.querySelector('.searchable-bio').textContent.toLowerCase();
             const name = card.querySelector('.searchable-name').textContent.toLowerCase();
             const category = card.getAttribute('data-category');
-
+ 
             const matchesSearch = headline.includes(searchTerm) || bio.includes(searchTerm) || name.includes(searchTerm);
             const matchesCategory = activeCategory === 'All' || category === activeCategory;
-
+ 
             if (matchesSearch && matchesCategory) {
                 card.classList.remove('d-none');
                 visibleCount++;
@@ -326,12 +326,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 card.classList.add('d-none');
             }
         });
-
+ 
         noResults.classList.toggle('d-none', visibleCount > 0 || searchTerm === "");
     }
-
+ 
     searchInput.addEventListener('input', applyFilters);
-
+ 
     filterPills.forEach(pill => {
         pill.addEventListener('click', function() {
             filterPills.forEach(p => p.classList.remove('active-filter'));
@@ -339,32 +339,32 @@ document.addEventListener("DOMContentLoaded", function() {
             applyFilters();
         });
     });
-
+ 
     document.querySelectorAll('.vouch-btn').forEach(button => {
         button.addEventListener('click', async function() {
             const userId = this.getAttribute('data-user-id');
             const countSpan = document.getElementById(`vouch-count-${userId}`);
-            
+           
             this.disabled = true;
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
+ 
             try {
                 const csrfToken = document.querySelector('input[name="csrf_token"]').value;
-
-                const response = await fetch(`/vouch/${userId}`, { 
+ 
+                const response = await fetch(`/vouch/${userId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': csrfToken
                     }
                 });
-
+ 
                 if (response.status === 401) {
                     window.location.href = "/login";
                     return;
                 }
-
+ 
                 const data = await response.json();
-                
+               
                 if (data.new_count !== undefined) {
                     countSpan.textContent = data.new_count;
                     this.innerHTML = '<i class="fas fa-check"></i> Vouched';
@@ -382,5 +382,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-
+ 
 {% endblock content %}
+ 
