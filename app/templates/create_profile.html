@@ -96,6 +96,7 @@
  
     <div class="profile-card shadow-sm">
         <form id="profileForm" action="{{ url_for('create_profile') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
            
             <h3 class="section-title">1. Personal Identity</h3>
             <div class="row align-items-center mb-4">
@@ -258,15 +259,22 @@
         saveStatus.textContent = "Saving...";
         const formData = new FormData(form);
         try {
-            const response = await fetch('/save-profile', {
+            const response = await fetch("{{ url_for('create_profile') }}", {
                 method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             if (response.ok) {
                 saveStatus.textContent = "Saved";
                 saveStatus.style.color = "var(--brand-green)";
+            } else {
+                throw new Error("Save failed");
             }
-        } catch (error) { console.error("Auto-save failed", error); }
+        } catch (error) {
+            saveStatus.textContent = "Not saved";
+            saveStatus.style.color = "#dc3545";
+            console.error("Auto-save failed", error);
+        }
     }
+ 
  
     const debouncedSave = debounce(autoSaveProfile, 1000);
     form.addEventListener('input', debouncedSave);
@@ -281,7 +289,10 @@
  
         const formData = new FormData(form);
         try {
-            await fetch("{{ url_for('create_profile') }}", { method: 'POST', body: formData });
+            const response = await fetch("{{ url_for('create_profile') }}", { method: 'POST', body: formData });
+            if (!response.ok) {
+                throw new Error("Profile save failed");
+            }
             const topAlert = document.getElementById('topSuccessMessage');
             topAlert.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
