@@ -70,9 +70,16 @@ If you did not make this request then simply ignore this email.
 @app.route("/home")
 def home():
     if current_user.is_authenticated:
-        all_users = User.query.filter(User.headline != None, User.id != current_user.id).all()
+        all_users = User.query.filter(
+            User.skill_cat.isnot(None),
+            User.skill_cat != '',
+            User.id != current_user.id
+        ).all()
     else:
-        all_users = User.query.filter(User.headline != None).all()
+        all_users = User.query.filter(
+            User.skill_cat.isnot(None),
+            User.skill_cat != ''
+        ).all()
         
     all_requests = Request.query.order_by(Request.date_posted.desc()).all()
     member_count = User.query.count()
