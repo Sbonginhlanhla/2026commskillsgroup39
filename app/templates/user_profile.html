@@ -24,7 +24,7 @@
         border: 1px solid #eaeaea;
         display: flex;
         flex-direction: column;
-        height: 70vh; /* Fixed height for scrolling */
+        height: 70vh;
         overflow: hidden;
     }
 
@@ -56,7 +56,7 @@
     .message-received {
         align-self: flex-start;
         background-color: white;
-        color: var(--text-dark);
+        color: #333;
         border: 1px solid #e0e0e0;
         border-bottom-left-radius: 0.2rem;
     }
@@ -65,10 +65,6 @@
         padding: 1rem;
         background: white;
         border-top: 1px solid #eaeaea;
-    }
-
-    .avatar-sm {
-        width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
     }
 </style>
 
@@ -87,7 +83,7 @@
                     {% endif %}
                     <h3 class="serif-heading h4 mb-1">{{ user.first_name }} {{ user.last_name }}</h3>
                     <span class="badge bg-light text-success border rounded-pill px-3">
-                        <i class="fas fa-heart me-1"></i> {{ user.vouch_count }} Vouches
+                        <i class="fas fa-heart me-1"></i> {{ user.vouch_count if user.vouch_count else 0 }} Vouches
                     </span>
                 </div>
 
@@ -116,19 +112,18 @@
                 <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <div class="bg-success rounded-circle me-2" style="width: 10px; height: 10px;"></div>
-                        <h5 class="mb-0 serif-heading h6">Chat History</h5>
+                        <h5 class="mb-0 serif-heading h6">Chat with {{ user.username }}</h5>
                     </div>
-                    <small class="text-muted">Safe Exchange Tips 🛡️</small>
                 </div>
 
                 <div class="chat-messages" id="messageDisplay">
-                    {% if not messages %}
+                    {% if not chat_history %}
                         <div class="text-center my-auto">
-                            <i class="fas fa-comments fa-3x text-light mb-3"></i>
+                            <i class="fas fa-comments fa-3x text-light mb-3" style="opacity: 0.3;"></i>
                             <p class="text-muted">No messages yet. Say hi to start the exchange!</p>
                         </div>
                     {% else %}
-                        {% for msg in messages %}
+                        {% for msg in chat_history %}
                             <div class="message {{ 'message-sent' if msg.sender_id == current_user.id else 'message-received' }}">
                                 {{ msg.body }}
                                 <div class="text-end" style="font-size: 0.7rem; opacity: 0.7; margin-top: 4px;">
@@ -141,8 +136,10 @@
 
                 <div class="chat-footer">
                     <form action="{{ url_for('send_message', recipient_id=user.id) }}" method="POST" id="chatForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
                         <div class="input-group">
-                            <input type="text" name="body" id="messageInput" class="form-control border-0 bg-light rounded-start-pill px-4" 
+                            <input type="text" name="message_content" id="messageInput" class="form-control border-0 bg-light rounded-start-pill px-4" 
                                    placeholder="Type your message here..." required autocomplete="off">
                             <button class="btn btn-success rounded-end-pill px-4" type="submit">
                                 <i class="fas fa-paper-plane"></i>
@@ -157,15 +154,7 @@
 </div>
 
 <script>
-    // Auto-scroll to bottom of chat on load
     const messageDisplay = document.getElementById('messageDisplay');
     messageDisplay.scrollTop = messageDisplay.scrollHeight;
-
-    // Optional: Keep scroll at bottom after sending
-    document.getElementById('chatForm').onsubmit = function() {
-        setTimeout(() => {
-            messageDisplay.scrollTop = messageDisplay.scrollHeight;
-        }, 100);
-    };
 </script>
 {% endblock %}

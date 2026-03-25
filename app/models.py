@@ -17,6 +17,7 @@ class User(db.Model, UserMixin):
     
     # Email verification status
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    verification_code = db.Column(db.String(6), nullable=True) 
     password = db.Column(db.String(60), nullable=False)
     
     # Profile information
@@ -48,7 +49,6 @@ class User(db.Model, UserMixin):
 
     @property
     def average_rating(self):
-        # FIXED INDENTATION HERE
         if not self.ratings_received:
             return 0.0
         return sum([r.score for r in self.ratings_received]) / len(self.ratings_received)
@@ -67,7 +67,7 @@ class User(db.Model, UserMixin):
         return User.query.get(user_id)
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', 'Vouches: {self.vouch_count}')"
+        return f"User('{self.username}', '{self.email}')"
 
 class Request(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,7 +79,7 @@ class Request(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return f"Request('{self.title}', '{self.category}', '{self.date_posted}')"
+        return f"Request('{self.title}', '{self.category}')"
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,12 +88,9 @@ class Message(db.Model):
     body = db.Column(db.String(500), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f"Message('{self.body}', '{self.timestamp}')"
-
 class Rating(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.Integer, nullable=False) # 1 to 5
+    score = db.Column(db.Integer, nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     rated_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)

@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="fw-bold text-brand-green mb-0">My Conversations</h2>
+                <span class="badge bg-brand-green-light text-brand-green ms-3 rounded-pill px-3">
+                    {{ chat_partners|length }} Chats
+                </span>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 1.5rem; overflow: hidden;">
+                <div class="list-group list-group-flush">
+                    {% if not chat_partners %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-light mb-3"></i>
+                            <p class="text-muted">No conversations yet. Start one from a user's profile!</p>
+                            <a href="{{ url_for('home') }}" class="btn btn-brand-green text-white rounded-pill px-4">Browse Skills</a>
+                        </div>
+                    {% else %}
+                        {% for partner in chat_partners %}
+                            <a href="{{ url_for('user_profile', user_id=partner.id) }}" 
+                               class="list-group-item list-group-item-action p-4 border-0 d-flex align-items-center justify-content-between chat-item">
+                                <div class="d-flex align-items-center">
+                                    {% if partner.profile_pic %}
+                                        <img src="{{ url_for('static', filename='profile_pics/' + partner.profile_pic) }}" 
+                                             class="rounded-circle me-3 border" style="width: 60px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 60px; height: 60px; color: #2a7a58; font-weight: bold; font-size: 1.2rem;">
+                                            {{ partner.first_name[0] }}{{ partner.last_name[0] }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="mb-1 fw-bold">{{ partner.first_name }} {{ partner.last_name }}</h5>
+                                        <p class="mb-0 text-muted small">{{ partner.skill_cat }} • @{{ partner.username }}</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right text-light"></i>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-brand-green-light { background-color: #e9f2ee; }
+    .chat-item { transition: all 0.2s ease; border-bottom: 1px solid #f8f9fa !important; }
+    .chat-item:hover { background-color: #fcfdfc; transform: translateX(5px); }
+    .chat-item:last-child { border-bottom: none !important; }
+</style>
+{% endblock %}

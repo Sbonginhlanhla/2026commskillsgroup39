@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Custom Green Branding */
+    .text-brand-green {
+        color: #2a7a58 !important;
+    }
+
+    .btn-brand-green {
+        background-color: #2a7a58;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-brand-green:hover {
+        background-color: #1f5c42; /* Darker shade for hover */
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-brand-green:active {
+        transform: translateY(0);
+    }
+
+    /* Input focus styling */
+    .form-control:focus {
+        border-color: #2a7a58;
+        box-shadow: 0 0 0 0.25rem rgba(42, 122, 88, 0.25);
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 p-4" style="border-radius: 1.5rem;">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-brand-green">Verify Your Email</h2>
+                    <p class="text-muted">Enter the 6-digit code sent to your inbox.</p>
+                </div>
+
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Confirm Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">6-Digit Code</label>
+                        <input type="text" name="code" class="form-control text-center fw-bold" 
+                               placeholder="000000" maxlength="6" 
+                               inputmode="numeric" pattern="\d{6}"
+                               style="font-size: 1.5rem; letter-spacing: 4px;" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-brand-green btn-lg shadow-sm text-white">
+                            Verify Account
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Didn't get a code? <a href="{{ url_for('login') }}" class="text-brand-green text-decoration-none fw-bold">Try logging in to resend</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
