@@ -19,7 +19,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '135790135790'
 
 # Database configuration (SQLite for simplicity)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///skills_exchange.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///skills_exchange.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/site/wwwroot/skills_exchange.db'
 
 # Email Configuration (used for account verification and password reset)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -31,6 +32,9 @@ app.config['MAIL_DEFAULT_SENDER'] = '2026commskills@gmail.com'
 
 # Initialize extensions
 db = SQLAlchemy(app)              # Database ORM
+with app.app_context():
+    db.create_all()
+  
 migrate = Migrate(app, db)        # Database migrations
 bcrypt = Bcrypt(app)              # Password hashing
 csrf = CSRFProtect(app)           # CSRF protection for forms
