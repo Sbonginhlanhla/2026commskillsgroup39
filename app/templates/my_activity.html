@@ -82,6 +82,7 @@
                             </button>
                             
                             <form action="{{ url_for('delete_request', request_id=req.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" 
                                         onclick="return confirm('Remove this request permanently?')">
                                     <i class="fa-solid fa-trash-can me-1"></i> Delete
