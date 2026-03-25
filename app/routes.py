@@ -146,13 +146,17 @@ def confirm_email(token):
     if user is None:
         flash('Invalid or expired verification link.', 'warning')
         return redirect(url_for('register'))
+    
     if not user.confirmed:
         user.confirmed = True
         db.session.commit()
-        flash('Verification successful! You can now log in.', 'success')
+        # Log the user in immediately
+        login_user(user) 
+        flash('Verification successful! You are now logged in.', 'success')
+        return redirect(url_for('home')) # Or redirect to 'create_profile'
     else:
         flash('Account already verified.', 'info')
-    return redirect(url_for('login'))
+        return redirect(url_for('login'))
 
 # --- User Profile Management ---
 
