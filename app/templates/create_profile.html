@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-
+ 
 {% block content %}
 <style>
     :root {
@@ -7,25 +7,25 @@
         --brand-green-light: #e9f2ee;
         --text-dark: #1a2b22;
     }
-    
+   
     .serif-heading {
         font-family: 'Merriweather', serif;
         font-weight: 700;
         color: var(--text-dark);
     }
-
+ 
     .form-container {
         max-width: 850px;
         margin: 2rem auto;
     }
-
+ 
     .profile-card {
         background: white;
         border-radius: 1.5rem;
         border: 1px solid #eaeaea;
         padding: 3rem;
     }
-
+ 
     .section-title {
         border-bottom: 2px solid var(--brand-green-light);
         padding-bottom: 0.5rem;
@@ -33,24 +33,24 @@
         font-size: 1.25rem;
         color: var(--brand-green);
     }
-
+ 
     .form-label {
         font-weight: 600;
         margin-top: 0.5rem;
     }
-
+ 
     .form-control, .form-select {
         border-radius: 0.8rem;
         padding: 0.7rem 1.1rem;
         border: 1px solid #dee2e6;
     }
-
+ 
     .locked-input {
         background-color: #f8f9fa !important;
         font-weight: bold;
         color: #666;
     }
-
+ 
     .profile-pic-preview {
         width: 100px;
         height: 100px;
@@ -58,18 +58,18 @@
         object-fit: cover;
         border: 3px solid var(--brand-green-light);
     }
-
+ 
     .btn-save {
         background-color: var(--text-dark);
         color: white;
         transition: all 0.3s ease;
     }
-
+ 
     .btn-save:hover {
         background-color: var(--brand-green);
         color: white;
     }
-
+ 
     .top-success-alert {
         display: none;
         background-color: var(--brand-green-light);
@@ -83,20 +83,20 @@
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 </style>
-
+ 
 <div class="form-container">
     <div class="text-center mb-5">
         <h1 class="serif-heading display-5">Complete Your Profile</h1>
         <p class="text-muted">Join the 2026commskills network.</p>
     </div>
-
+ 
     <div id="topSuccessMessage" class="top-success-alert">
         <i class="fas fa-check-circle me-2"></i> You have successfully saved! Redirecting to home...
     </div>
-
+ 
     <div class="profile-card shadow-sm">
         <form id="profileForm" action="{{ url_for('create_profile') }}" method="POST" enctype="multipart/form-data">
-            
+           
             <h3 class="section-title">1. Personal Identity</h3>
             <div class="row align-items-center mb-4">
                 <div class="col-md-3 text-center">
@@ -111,7 +111,7 @@
                     <div class="form-text">A one-liner that defines your "vibe".</div>
                 </div>
             </div>
-
+ 
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label class="form-label">Full Name (Locked)</label>
@@ -122,12 +122,12 @@
                     <input type="tel" class="form-control" name="phone" value="{{ user.phone or '' }}" placeholder="e.g. +27 82 123 4567">
                 </div>
             </div>
-
+ 
             <div class="mb-4">
                 <label class="form-label">About You (Bio)</label>
                 <textarea class="form-control" rows="3" name="bio" placeholder="Tell us your story...">{{ user.bio or '' }}</textarea>
             </div>
-
+ 
             <h3 class="section-title">2. Skills & Experience</h3>
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -148,17 +148,17 @@
                     </select>
                 </div>
             </div>
-
+ 
             <div class="mb-4">
                 <label class="form-label">How can you help others with this skill?</label>
                 <textarea class="form-control" rows="2" name="help_text" placeholder="e.g. I can help you build your first website...">{{ user.help_text or '' }}</textarea>
             </div>
-
+ 
             <div class="mb-4">
                 <label class="form-label">Skills you want to learn</label>
                 <input type="text" class="form-control" name="skills_learn" value="{{ user.skills_learn or '' }}" placeholder="e.g. French, Guitar, Woodworking">
             </div>
-
+ 
             <h3 class="section-title">3. Accreditation (Optional)</h3>
 <div class="mb-4">
     <label class="form-label">Proof of Qualification</label>
@@ -179,7 +179,7 @@
         {% endif %}
     </div>
 </div>
-
+ 
             <h3 class="section-title">3. Logistics & Availability</h3>
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -191,7 +191,7 @@
                     <input type="text" class="form-control" name="languages" value="{{ user.languages or '' }}" placeholder="e.g. English, Zulu, Afrikaans">
                 </div>
             </div>
-            
+           
             <div class="mb-4">
                 <label class="form-label">Preferred Method</label>
                 <div class="d-flex gap-3 mt-1">
@@ -205,7 +205,7 @@
                     </div>
                 </div>
             </div>
-
+ 
             <h3 class="section-title">4. Social Links</h3>
             <div class="row mb-4">
                 <div class="col-md-6 mb-2">
@@ -221,7 +221,7 @@
                     </div>
                 </div>
             </div>
-
+ 
             <div class="d-flex justify-content-between align-items-center pt-4">
                 <a href="{{ url_for('home') }}" class="text-muted text-decoration-none">Cancel</a>
                 <div class="d-flex align-items-center gap-3">
@@ -232,7 +232,7 @@
         </form>
     </div>
 </div>
-
+ 
 <script>
     // 1. Image Preview
     const fileInput = document.getElementById('profilePicInput');
@@ -241,11 +241,11 @@
         const file = event.target.files[0];
         if (file) { imagePreview.src = URL.createObjectURL(file); }
     });
-
+ 
     // 2. Debounced Auto-Save
     const form = document.getElementById('profileForm');
     const saveStatus = document.getElementById('saveStatus');
-
+ 
     function debounce(func, delay) {
         let timeoutId;
         return function(...args) {
@@ -253,12 +253,12 @@
             timeoutId = setTimeout(() => func.apply(this, args), delay);
         };
     }
-
+ 
     async function autoSaveProfile() {
         saveStatus.textContent = "Saving...";
         const formData = new FormData(form);
         try {
-            const response = await fetch('/save-profile', { 
+            const response = await fetch('/save-profile', {
                 method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             if (response.ok) {
@@ -267,18 +267,18 @@
             }
         } catch (error) { console.error("Auto-save failed", error); }
     }
-
+ 
     const debouncedSave = debounce(autoSaveProfile, 1000);
     form.addEventListener('input', debouncedSave);
     form.addEventListener('change', debouncedSave);
-
+ 
     // 3. Final Submit Logic
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
         const submitBtn = document.getElementById('submitButton');
         submitBtn.textContent = "Processing...";
         submitBtn.disabled = true;
-
+ 
         const formData = new FormData(form);
         try {
             await fetch("{{ url_for('create_profile') }}", { method: 'POST', body: formData });
@@ -293,3 +293,4 @@
     });
 </script>
 {% endblock content %}
+ 
