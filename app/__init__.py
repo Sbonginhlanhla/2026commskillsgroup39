@@ -32,6 +32,8 @@ app.config['MAIL_DEFAULT_SENDER'] = '2026commskills@gmail.com'
 
 # Initialize extensions
 db = SQLAlchemy(app)              # Database ORM
+from app import models  # 👈 IMPORTANT (forces table registration)
+
 with app.app_context():
     db.create_all()
   
